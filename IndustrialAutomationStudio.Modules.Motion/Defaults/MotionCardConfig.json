@@ -1,0 +1,14 @@
+{
+  "CardNo": 0,
+  "DriverKey": "Mock",
+  "CardName": "Mock Motion Card",
+  "CardType": "Virtual",
+  "ConnectType": "Mock",
+  "IpAddress": "127.0.0.1",
+  "Port": 0,
+  "AxisCount": 8,
+  "DiCount": 16,
+  "DoCount": 16,
+  "AutoConnectOnStartup": false,
+  "ConnectionParameters": {}
+}

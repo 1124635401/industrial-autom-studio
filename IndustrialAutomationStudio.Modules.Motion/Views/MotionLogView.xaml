@@ -1,0 +1,18 @@
+<UserControl x:Class="IndustrialAutomationStudio.Modules.Motion.Views.MotionLogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,16" FontSize="26" FontWeight="SemiBold" Text="运动日志" />
+        <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="155" />
+                <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="90" />
+                <DataGridTextColumn Header="模块" Binding="{Binding Module}" Width="110" />
+                <DataGridTextColumn Header="操作" Binding="{Binding Operation}" Width="130" />
+                <DataGridTextColumn Header="结果" Binding="{Binding Result}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

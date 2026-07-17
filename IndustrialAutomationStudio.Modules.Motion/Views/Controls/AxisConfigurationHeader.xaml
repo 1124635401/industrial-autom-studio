@@ -1,0 +1,64 @@
+<UserControl x:Class="IndustrialAutomationStudio.Modules.Motion.Views.Controls.AxisConfigurationHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             >
+    <Border Background="White" BorderBrush="{StaticResource MotionReferenceBorderBrush}"
+            BorderThickness="0,0,0,1" Padding="20,0">
+        <Grid MinHeight="64">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Path Width="26" Height="26" Stretch="Uniform" Fill="{StaticResource MotionReferenceBlueBrush}"
+                      Data="{StaticResource MotionIcon.Cube}" />
+                <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                    <TextBlock FontSize="18" FontWeight="SemiBold"
+                               Foreground="{StaticResource MotionReferenceTitleBrush}" Text="轴配置" />
+                    <TextBlock Margin="0,2,0,0" FontSize="12"
+                               Foreground="{StaticResource MotionReferenceSecondaryBrush}"
+                               Text="配置和管理运动控制轴参数" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource MotionReferenceToolbarButton}" Command="{Binding LoadCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform" StrokeThickness="1.7"
+                              Stroke="{StaticResource MotionReferenceBlueBrush}" Data="{StaticResource MotionIcon.Folder}" />
+                        <TextBlock VerticalAlignment="Center" FontSize="13" Text="加载" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource MotionReferenceToolbarButton}" Command="{Binding SaveCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform" StrokeThickness="1.7"
+                              Stroke="{StaticResource MotionReferenceBlueBrush}" Data="{StaticResource MotionIcon.Save}" />
+                        <TextBlock VerticalAlignment="Center" FontSize="13" Text="保存" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource MotionReferenceToolbarButton}" Command="{Binding ImportCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform" StrokeThickness="1.7"
+                              Stroke="{StaticResource MotionReferenceBlueBrush}" Data="{StaticResource MotionIcon.Import}" />
+                        <TextBlock VerticalAlignment="Center" FontSize="13" Text="导入" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource MotionReferenceToolbarButton}" Command="{Binding ExportCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform" StrokeThickness="1.7"
+                              Stroke="{StaticResource MotionReferenceBlueBrush}" Data="{StaticResource MotionIcon.Export}" />
+                        <TextBlock VerticalAlignment="Center" FontSize="13" Text="导出" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource MotionReferenceToolbarButton}" Margin="0" Command="{Binding RefreshCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="18" Height="18" Margin="0,0,8,0" Stretch="Uniform" StrokeThickness="1.7"
+                              Stroke="{StaticResource MotionReferenceBlueBrush}" Data="{StaticResource MotionIcon.Refresh}" />
+                        <TextBlock VerticalAlignment="Center" FontSize="13" Text="刷新" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

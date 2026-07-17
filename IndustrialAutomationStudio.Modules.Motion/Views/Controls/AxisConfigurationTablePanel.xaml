@@ -1,0 +1,193 @@
+<UserControl x:Class="IndustrialAutomationStudio.Modules.Motion.Views.Controls.AxisConfigurationTablePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border Style="{StaticResource MotionReferenceCardStyle}">
+        <Grid>
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+
+            <Grid Margin="14,12,14,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" /><ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="280" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold"
+                           Foreground="{StaticResource MotionReferenceTitleBrush}" Text="轴配置表" />
+
+                <Grid Grid.Column="2">
+                    <TextBox Height="{DynamicResource MotionAxisInputHeight}" Margin="0" Padding="10,0,36,0"
+                             VerticalContentAlignment="Center" FontSize="13"
+                             BorderBrush="{StaticResource MotionReferenceBorderBrush}"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Margin="11,0,36,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                               Foreground="#FF8A96A8" Text="搜索轴名称或编号...">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SearchText}" Value="">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <Path Width="16" Height="16" Margin="0,0,10,0" HorizontalAlignment="Right"
+                          VerticalAlignment="Center" Stretch="Uniform" Stroke="#FF8A96A8"
+                          StrokeThickness="1.6" Data="{StaticResource MotionIcon.Search}" />
+                </Grid>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                    <Button Style="{StaticResource MotionReferenceActionButton}" Command="{Binding AddAxisCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="16" Height="16" Margin="0,0,8,0" Stretch="Uniform"
+                                  Stroke="{StaticResource MotionReferenceBlueBrush}" StrokeThickness="1.8"
+                                  Data="{StaticResource MotionIcon.Add}" />
+                            <TextBlock VerticalAlignment="Center" Text="添加轴" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource MotionReferenceActionButton}" Margin="0" Command="{Binding DeleteAxisCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="16" Height="16" Margin="0,0,8,0" Stretch="Uniform"
+                                  Stroke="{StaticResource MotionDangerBrush}" StrokeThickness="1.6"
+                                  Data="{StaticResource MotionIcon.Delete}" />
+                            <TextBlock VerticalAlignment="Center" Text="删除轴" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <DataGrid x:Name="AxisGrid" Grid.Row="1" Margin="14,0,14,14"
+                      Style="{StaticResource MotionAxisDataGridStyle}"
+                      ItemsSource="{Binding AxesView}"
+                      SelectedItem="{Binding SelectedAxis}"
+                      AutoGenerateColumns="False"
+                      FrozenColumnCount="0"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      CanUserReorderColumns="False"
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="卡号" Width="70" HeaderStyle="{StaticResource MotionAxisBasicColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding CardNo, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="轴号" Width="70" HeaderStyle="{StaticResource MotionAxisBasicColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding AxisNo, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn x:Name="AxisNameColumn" Header="轴名称" Width="150" HeaderStyle="{StaticResource MotionAxisBasicColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Tag="AxisNameEditor"
+                                     TextAlignment="Left" HorizontalContentAlignment="Left"
+                                     Text="{Binding AxisName, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="轴类型" Width="110" HeaderStyle="{StaticResource MotionAxisBasicColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <ComboBox Style="{StaticResource MotionAxisUnderlineComboBoxStyle}"
+                                      HorizontalContentAlignment="Left"
+                                      ItemsSource="{Binding DataContext.AxisTypes, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      SelectedItem="{Binding AxisType, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="齿轮比" Width="90" HeaderStyle="{StaticResource MotionAxisBasicColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding GearRatio, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="分辨率" Width="110" HeaderStyle="{StaticResource MotionAxisBasicColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding Resolution, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="最大速度" Width="105" HeaderStyle="{StaticResource MotionAxisMotionColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding MaxVelocity, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="加速度" Width="100" HeaderStyle="{StaticResource MotionAxisMotionColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding Acceleration, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="减速度" Width="100" HeaderStyle="{StaticResource MotionAxisMotionColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding Deceleration, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="STime" Width="90" HeaderStyle="{StaticResource MotionAxisMotionColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding STime, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="到位误差" Width="100" HeaderStyle="{StaticResource MotionAxisMotionColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding InPositionError, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="JogReverse" Width="115" HeaderStyle="{StaticResource MotionAxisMotionColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <ComboBox Style="{StaticResource MotionAxisUnderlineComboBoxStyle}"
+                                      ItemsSource="{Binding DataContext.JogDirections, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      DisplayMemberPath="Name" SelectedValuePath="Value"
+                                      SelectedValue="{Binding JogReverse, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="回零加速度" Width="115" HeaderStyle="{StaticResource MotionAxisHomeColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding HomeAcceleration, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="回零速度1" Width="110" HeaderStyle="{StaticResource MotionAxisHomeColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding HomeVelocity1, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="回零速度2" Width="110" HeaderStyle="{StaticResource MotionAxisHomeColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding HomeVelocity2, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="回零模式" Width="110" HeaderStyle="{StaticResource MotionAxisHomeColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <ComboBox Style="{StaticResource MotionAxisUnderlineComboBoxStyle}"
+                                      ItemsSource="{Binding DataContext.HomeModes, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      SelectedItem="{Binding HomeMode, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="TxPdoStart" Width="110" HeaderStyle="{StaticResource MotionAxisPdoColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding TxPdoStart, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="RxPdoStart" Width="110" HeaderStyle="{StaticResource MotionAxisPdoColumnHeaderStyle}">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                            <TextBox Style="{StaticResource MotionAxisUnderlineTextBoxStyle}"
+                                     Text="{Binding RxPdoStart, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,37 @@
+<Window x:Class="IndustrialAutomationStudio.App.ShellWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel="True"
+        Title="{Binding Title}"
+        Width="1440"
+        Height="900"
+        MinWidth="1100"
+        MinHeight="720"
+        WindowStartupLocation="CenterScreen"
+        Background="#FFF4F6F9">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <Border Background="#FF111827">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center" FontSize="19" FontWeight="SemiBold" Foreground="White" Text="Industrial Automation Studio 工业自动化调试平台" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="9" Height="9" Margin="0,0,8,0" Fill="#FF21A366" />
+                    <TextBlock Foreground="#FFD1D5DB" Text="Mock Driver · .NET 10 · Prism 9" />
+                </StackPanel>
+            </Grid>
+        </Border>
+        <ContentControl Grid.Row="1" prism:RegionManager.RegionName="MainContentRegion" />
+        <Border Grid.Row="2" Background="#FFE2E8F0">
+            <DockPanel Margin="12,0">
+                <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="#FF64748B" Text="{Binding VersionText}" />
+                <TextBlock VerticalAlignment="Center" Foreground="#FF475569" Text="{Binding StatusText}" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

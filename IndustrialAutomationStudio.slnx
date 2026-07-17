@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Applications/">
+    <Project Path="IndustrialAutomationStudio.App/IndustrialAutomationStudio.App.csproj" />
+  </Folder>
+  <Folder Name="/Modules/">
+    <Project Path="IndustrialAutomationStudio.Modules.Motion/IndustrialAutomationStudio.Modules.Motion.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="IndustrialAutomationStudio.Modules.Motion.Tests/IndustrialAutomationStudio.Modules.Motion.Tests.csproj" />
+  </Folder>
+</Solution>
