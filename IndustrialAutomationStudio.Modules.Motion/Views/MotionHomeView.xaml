@@ -2,21 +2,148 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             prism:ViewModelLocator.AutoWireViewModel="True">
-    <ScrollViewer>
-        <StackPanel>
-            <DockPanel Margin="0,0,0,18">
-                <TextBlock FontSize="26" FontWeight="SemiBold" Text="运动首页" />
-                <Button DockPanel.Dock="Right" Style="{StaticResource MotionPrimaryButton}" Content="刷新" Command="{Binding RefreshCommand}" />
-            </DockPanel>
-            <UniformGrid Columns="3">
-                <GroupBox Header="控制卡"><TextBlock FontSize="24" Text="{Binding IsConnected, StringFormat={}已连接：{0}}" /></GroupBox>
-                <GroupBox Header="轴数量"><TextBlock FontSize="24" Text="{Binding AxisCount}" /></GroupBox>
-                <GroupBox Header="报警数量"><TextBlock FontSize="24" Text="{Binding AlarmCount}" /></GroupBox>
-                <GroupBox Header="DI 数量"><TextBlock FontSize="24" Text="{Binding DiCount}" /></GroupBox>
-                <GroupBox Header="DO 数量"><TextBlock FontSize="24" Text="{Binding DoCount}" /></GroupBox>
-                <GroupBox Header="最近日志"><TextBlock Text="{Binding LatestLog}" TextWrapping="Wrap" /></GroupBox>
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="Transparent">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="运动首页" />
+                <Button Grid.Column="1" Style="{StaticResource MotionIconButtonStyle}"
+                        Command="{Binding RefreshCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="17" Height="17" Margin="0,0,9,0" Stretch="Uniform"
+                              Stroke="{StaticResource MotionTextPrimaryBrush}" StrokeThickness="1.6"
+                              Data="{StaticResource MotionIcon.Refresh}" />
+                        <TextBlock VerticalAlignment="Center" Text="刷新" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <Border Grid.Row="1" Margin="0,0,0,24" Style="{StaticResource MotionInfoBannerStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <Path Width="20" Height="20" Margin="0,0,12,0" Stretch="Uniform"
+                          Stroke="{StaticResource MotionBrush.Primary}" StrokeThickness="1.6"
+                          Data="{StaticResource MotionIcon.Info}" />
+                    <TextBlock VerticalAlignment="Center" FontSize="14"
+                               Foreground="{StaticResource MotionBrush.Primary}"
+                               Text="系统运行正常，运动控制服务已就绪。" />
+                </StackPanel>
+            </Border>
+
+            <UniformGrid Grid.Row="2" Columns="3" Rows="2">
+                <Border Margin="0,0,16,16" MinHeight="190" Style="{StaticResource MotionMetricCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="控制卡" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="64" Height="64" Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="32">
+                                <Path Width="30" Height="30" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Primary}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Card}" />
+                            </Border>
+                            <TextBlock Margin="22,0,0,0" VerticalAlignment="Center" FontSize="30" FontWeight="SemiBold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{StaticResource MotionTextSecondaryBrush}" />
+                                        <Setter Property="Text" Value="未连接" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                                <Setter Property="Foreground" Value="{StaticResource MotionBrush.Primary}" />
+                                                <Setter Property="Text" Value="已连接" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,0,16,16" MinHeight="190" Style="{StaticResource MotionMetricCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="轴数量" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="64" Height="64" Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="32">
+                                <Path Width="30" Height="30" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Primary}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Axis}" />
+                            </Border>
+                            <TextBlock Margin="22,0,0,0" VerticalAlignment="Center" FontSize="36" FontWeight="SemiBold"
+                                       Foreground="{StaticResource MotionBrush.Primary}" Text="{Binding AxisCount}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,0,0,16" MinHeight="190" Style="{StaticResource MotionMetricCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="报警数量" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="64" Height="64" Background="{StaticResource MotionDangerLightBrush}" CornerRadius="32">
+                                <Path Width="30" Height="30" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Danger}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Alarm}" />
+                            </Border>
+                            <TextBlock Margin="22,0,0,0" VerticalAlignment="Center" FontSize="36" FontWeight="SemiBold"
+                                       Foreground="{StaticResource MotionBrush.Danger}" Text="{Binding AlarmCount}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,0,16,0" MinHeight="190" Style="{StaticResource MotionMetricCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="DI 数量" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="64" Height="64" Background="{StaticResource MotionSuccessLightBrush}" CornerRadius="32">
+                                <Path Width="30" Height="30" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Success}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.DigitalInput}" />
+                            </Border>
+                            <TextBlock Margin="22,0,0,0" VerticalAlignment="Center" FontSize="36" FontWeight="SemiBold"
+                                       Foreground="{StaticResource MotionBrush.Success}" Text="{Binding DiCount}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Margin="0,0,16,0" MinHeight="190" Style="{StaticResource MotionMetricCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="DO 数量" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="64" Height="64" Background="{StaticResource MotionPurpleLightBrush}" CornerRadius="32">
+                                <Path Width="30" Height="30" Stretch="Uniform" Stroke="{StaticResource MotionPurpleBrush}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.DigitalOutput}" />
+                            </Border>
+                            <TextBlock Margin="22,0,0,0" VerticalAlignment="Center" FontSize="36" FontWeight="SemiBold"
+                                       Foreground="{StaticResource MotionPurpleBrush}" Text="{Binding DoCount}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border MinHeight="190" Style="{StaticResource MotionMetricCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="最近日志" />
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="64" Height="64" Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="32">
+                                <Path Width="28" Height="28" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Primary}"
+                                      StrokeThickness="1.6" Data="{StaticResource MotionIcon.Log}" />
+                            </Border>
+                            <TextBlock Margin="20,0,0,0" MaxWidth="250" VerticalAlignment="Center" FontSize="13"
+                                       Foreground="{StaticResource MotionTextSecondaryBrush}" Text="{Binding LatestLog}"
+                                       TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </UniformGrid>
-        </StackPanel>
+        </Grid>
     </ScrollViewer>
 </UserControl>

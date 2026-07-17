@@ -2,17 +2,64 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             prism:ViewModelLocator.AutoWireViewModel="True">
-    <DockPanel>
-        <TextBlock DockPanel.Dock="Top" Margin="0,0,0,16" FontSize="26" FontWeight="SemiBold" Text="运动日志" />
-        <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="155" />
-                <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="90" />
-                <DataGridTextColumn Header="模块" Binding="{Binding Module}" Width="110" />
-                <DataGridTextColumn Header="操作" Binding="{Binding Operation}" Width="130" />
-                <DataGridTextColumn Header="结果" Binding="{Binding Result}" Width="*" />
-            </DataGrid.Columns>
-        </DataGrid>
-    </DockPanel>
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="Transparent">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Margin="0,0,0,22">
+            <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="运动日志" />
+            <TextBlock Margin="0,7,0,0" FontSize="13" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                       Text="查看运动控制模块的运行记录与操作结果。" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource MotionCardStyle}" Padding="0">
+            <Grid>
+                <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Style>
+                        <Style TargetType="DataGrid" BasedOn="{StaticResource MotionDataGridStyle}">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Entries.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Style>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="170" />
+                        <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="100" />
+                        <DataGridTextColumn Header="模块" Binding="{Binding Module}" Width="130" />
+                        <DataGridTextColumn Header="操作" Binding="{Binding Operation}" Width="160" />
+                        <DataGridTextColumn Header="结果" Binding="{Binding Result}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Entries.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Border Width="68" Height="68" HorizontalAlignment="Center"
+                            Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="34">
+                        <Path Width="30" Height="30" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Primary}"
+                              StrokeThickness="1.6" Data="{StaticResource MotionIcon.Log}" />
+                    </Border>
+                    <TextBlock Margin="0,18,0,0" HorizontalAlignment="Center" FontSize="17" FontWeight="SemiBold"
+                               Foreground="{StaticResource MotionTextPrimaryBrush}" Text="暂无日志记录" />
+                    <TextBlock Margin="0,7,0,0" HorizontalAlignment="Center" FontSize="13"
+                               Foreground="{StaticResource MotionTextSecondaryBrush}" Text="运行操作后，日志将在这里显示。" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

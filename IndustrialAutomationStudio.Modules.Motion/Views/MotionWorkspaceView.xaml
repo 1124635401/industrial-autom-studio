@@ -6,33 +6,150 @@
     <UserControl.Resources>
         <ResourceDictionary Source="/IndustrialAutomationStudio.Modules.Motion;component/Resources/MotionTheme.xaml" />
     </UserControl.Resources>
+
     <Grid Background="{StaticResource MotionBrush.Background}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="220" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <Border Background="{StaticResource MotionBrush.Navigation}">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Margin="0,24,0,0">
-                    <TextBlock Margin="22,0,0,22" FontSize="20" FontWeight="Bold" Foreground="White" Text="运动控制" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="运动首页" Command="{Binding NavigateHomeCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="控制卡连接" Command="{Binding NavigateConnectionCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="轴配置" Command="{Binding NavigateAxisConfigCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="单轴调试" Command="{Binding NavigateAxisDebugCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="IO 监控" Command="{Binding NavigateIoMonitorCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="点位调试" Command="{Binding NavigatePointDebugCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="多轴运动" Command="{Binding NavigateMultiAxisCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="报警诊断" Command="{Binding NavigateAlarmCommand}" />
-                    <Button Style="{StaticResource MotionNavigationButton}" Content="运动日志" Command="{Binding NavigateLogCommand}" />
-                </StackPanel>
-                <Border DockPanel.Dock="Bottom" Margin="16" Padding="12" Background="#22FFFFFF" CornerRadius="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="{DynamicResource MotionStatusBarHeight}" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{DynamicResource MotionNavigationWidth}" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Background="{StaticResource MotionBrush.Navigation}"
+                    BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,0,1,0">
+                <DockPanel LastChildFill="True">
+                    <TextBlock DockPanel.Dock="Top" Margin="25,22,0,12" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource MotionTextSecondaryBrush}" Text="运动控制" />
                     <StackPanel>
-                        <TextBlock Foreground="#FF94A3B8" Text="当前页面" />
-                        <TextBlock Margin="0,4,0,0" Foreground="White" Text="{Binding ActivePage}" TextWrapping="Wrap" />
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionHome}"
+                                      Command="{Binding NavigateHomeCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Home}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="运动首页" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionConnection}"
+                                      Command="{Binding NavigateConnectionCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Connection}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="控制卡连接" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionAxisConfig}"
+                                      Command="{Binding NavigateAxisConfigCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Axis}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="轴配置" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionAxisDebug}"
+                                      Command="{Binding NavigateAxisDebugCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Motion}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="单轴调试" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionIoMonitor}"
+                                      Command="{Binding NavigateIoMonitorCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Io}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="IO 监控" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionPointDebug}"
+                                      Command="{Binding NavigatePointDebugCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Point}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="点位调试" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionMultiAxis}"
+                                      Command="{Binding NavigateMultiAxisCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.MultiAxis}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="多轴运动" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionAlarm}"
+                                      Command="{Binding NavigateAlarmCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Alarm}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="报警诊断" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionLog}"
+                                      Command="{Binding NavigateLogCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Log}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="运动日志" />
+                            </StackPanel>
+                        </ToggleButton>
                     </StackPanel>
-                </Border>
-            </DockPanel>
+                </DockPanel>
+            </Border>
+
+            <ContentControl x:Name="WorkspaceContent" Grid.Column="1" Margin="26,22,26,20" />
+        </Grid>
+
+        <Border Grid.Row="1" Background="#FFFBFCFE" BorderBrush="{StaticResource MotionBorderBrush}"
+                BorderThickness="0,1,0,0">
+            <Grid Margin="26,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="49" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="49" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="9" Height="9" Fill="{StaticResource MotionBrush.Success}" />
+                    <TextBlock Margin="10,0,0,0" VerticalAlignment="Center"
+                               Foreground="{StaticResource MotionTextPrimaryBrush}" Text="在线" />
+                </StackPanel>
+                <Border Grid.Column="1" Height="20" Margin="24,0" Background="{StaticResource MotionBorderBrush}" />
+                <TextBlock Grid.Column="2" VerticalAlignment="Center" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                           Text="{Binding DriverLabel}" />
+                <Border Grid.Column="3" Height="20" Margin="24,0" Background="{StaticResource MotionBorderBrush}" />
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Foreground="{StaticResource MotionTextSecondaryBrush}" Text="当前页面: " />
+                    <TextBlock Foreground="{StaticResource MotionTextPrimaryBrush}" Text="{Binding ActivePageTitle}" />
+                </StackPanel>
+                <TextBlock Grid.Column="6" VerticalAlignment="Center" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                           Text="{Binding VersionText}" />
+            </Grid>
         </Border>
-        <ContentControl x:Name="WorkspaceContent" Grid.Column="1" Margin="18" />
     </Grid>
 </UserControl>

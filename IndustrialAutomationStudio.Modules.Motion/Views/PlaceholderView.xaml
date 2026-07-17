@@ -2,12 +2,24 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             prism:ViewModelLocator.AutoWireViewModel="True">
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="Transparent">
     <Grid>
-        <Border Width="480" Padding="32" HorizontalAlignment="Center" VerticalAlignment="Center" Background="White" CornerRadius="8">
+        <Border Style="{StaticResource MotionEmptyStateCardStyle}">
             <StackPanel>
-                <TextBlock HorizontalAlignment="Center" FontSize="24" FontWeight="SemiBold" Text="{Binding Title}" />
-                <TextBlock Margin="0,16,0,0" HorizontalAlignment="Center" Foreground="{StaticResource MotionBrush.Muted}" Text="{Binding Message}" />
+                <Border Width="76" Height="76" HorizontalAlignment="Center"
+                        Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="38">
+                    <Path Width="34" Height="34" Stretch="Uniform" Stroke="{StaticResource MotionBrush.Primary}"
+                          StrokeThickness="1.6" Data="{StaticResource MotionIcon.Motion}" />
+                </Border>
+                <TextBlock Margin="0,22,0,0" HorizontalAlignment="Center" FontSize="22" FontWeight="SemiBold"
+                           Foreground="{StaticResource MotionTextPrimaryBrush}" Text="{Binding Title}" />
+                <TextBlock Margin="0,10,0,0" HorizontalAlignment="Center" FontSize="13"
+                           Foreground="{StaticResource MotionTextSecondaryBrush}" Text="{Binding Message}" />
+                <Border Margin="0,24,0,0" Padding="14,6" HorizontalAlignment="Center"
+                        Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="14">
+                    <TextBlock FontSize="12" Foreground="{StaticResource MotionBrush.Primary}" Text="功能开发中" />
+                </Border>
             </StackPanel>
         </Border>
     </Grid>

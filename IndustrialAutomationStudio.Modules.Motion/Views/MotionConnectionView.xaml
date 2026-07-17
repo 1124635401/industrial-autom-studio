@@ -2,28 +2,131 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             prism:ViewModelLocator.AutoWireViewModel="True">
-    <StackPanel>
-        <TextBlock Margin="0,0,0,18" FontSize="26" FontWeight="SemiBold" Text="控制卡连接" />
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
-            <Button Style="{StaticResource MotionPrimaryButton}" Content="连接" Command="{Binding ConnectCommand}" />
-            <Button Style="{StaticResource MotionPrimaryButton}" Content="断开" Command="{Binding DisconnectCommand}" />
-            <Button Style="{StaticResource MotionPrimaryButton}" Content="扫描轴" Command="{Binding ScanCommand}" />
-        </StackPanel>
-        <GroupBox Header="控制卡信息" MaxWidth="720" HorizontalAlignment="Left">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="150" /><ColumnDefinition Width="260" /></Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="连接状态" /><TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IsConnected}" />
-                <TextBlock Grid.Row="1" Text="控制卡名称" /><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CardName}" />
-                <TextBlock Grid.Row="2" Text="Driver" /><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DriverKey}" />
-                <TextBlock Grid.Row="3" Text="固件版本" /><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FirmwareVersion}" />
-                <TextBlock Grid.Row="4" Text="轴数量" /><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding AxisCount}" />
-                <TextBlock Grid.Row="5" Text="DI / DO" /><TextBlock Grid.Row="5" Grid.Column="1"><Run Text="{Binding DiCount}" /><Run Text=" / " /><Run Text="{Binding DoCount}" /></TextBlock>
-                <TextBlock Grid.Row="6" Text="操作结果" /><TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="Transparent">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid MaxWidth="980" HorizontalAlignment="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="控制卡连接" />
+                    <TextBlock Margin="0,7,0,0" FontSize="13" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                               Text="连接并检查运动控制卡与轴资源。" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Margin="0,0,10,0" Style="{StaticResource MotionIconButtonStyle}"
+                            Background="{StaticResource MotionBrush.Primary}" BorderBrush="{StaticResource MotionBrush.Primary}"
+                            Foreground="White" Command="{Binding ConnectCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="17" Height="17" Margin="0,0,8,0" Stretch="Uniform" Stroke="White"
+                                  StrokeThickness="1.6" Data="{StaticResource MotionIcon.Connection}" />
+                            <TextBlock VerticalAlignment="Center" Text="连接" />
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="0,0,10,0" Style="{StaticResource MotionIconButtonStyle}"
+                            Command="{Binding DisconnectCommand}" Content="断开" />
+                    <Button Style="{StaticResource MotionIconButtonStyle}" Command="{Binding ScanCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Width="17" Height="17" Margin="0,0,8,0" Stretch="Uniform"
+                                  Stroke="{StaticResource MotionTextPrimaryBrush}" StrokeThickness="1.6"
+                                  Data="{StaticResource MotionIcon.Refresh}" />
+                            <TextBlock VerticalAlignment="Center" Text="扫描轴" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
-        </GroupBox>
-    </StackPanel>
+
+            <Border Grid.Row="1" Style="{StaticResource MotionInfoBannerStyle}" Margin="0,0,0,20">
+                <StackPanel Orientation="Horizontal">
+                    <Path Width="20" Height="20" Margin="0,0,12,0" Stretch="Uniform"
+                          Stroke="{StaticResource MotionBrush.Primary}" StrokeThickness="1.6"
+                          Data="{StaticResource MotionIcon.Info}" />
+                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource MotionBrush.Primary}"
+                               Text="连接前请确认控制卡配置与当前 Driver 设置一致。" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2" Style="{StaticResource MotionCardStyle}" Padding="0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="56" />
+                        <RowDefinition Height="58" />
+                        <RowDefinition Height="58" />
+                        <RowDefinition Height="58" />
+                        <RowDefinition Height="58" />
+                        <RowDefinition Height="58" />
+                        <RowDefinition Height="58" />
+                        <RowDefinition Height="72" />
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="#FFFAFBFD" BorderBrush="{StaticResource MotionBorderBrush}"
+                            BorderThickness="0,0,0,1" CornerRadius="8,8,0,0">
+                        <TextBlock Margin="22,0" VerticalAlignment="Center" Style="{StaticResource MotionCardTitleStyle}"
+                                   Text="控制卡信息" />
+                    </Border>
+
+                    <TextBlock Grid.Row="1" Margin="22,0,0,0" VerticalAlignment="Center"
+                               Style="{StaticResource MotionFieldLabelStyle}" Text="连接状态" />
+                    <Border Grid.Row="1" Margin="170,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                            >
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource MotionStatusPillStyle}">
+                                <Setter Property="Background" Value="{StaticResource MotionDisabledBrush}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource MotionSuccessLightBrush}" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock FontSize="12">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="未连接" />
+                                    <Setter Property="Foreground" Value="{StaticResource MotionTextSecondaryBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                            <Setter Property="Text" Value="已连接" />
+                                            <Setter Property="Foreground" Value="{StaticResource MotionBrush.Success}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+
+                    <TextBlock Grid.Row="2" Margin="22,0,0,0" VerticalAlignment="Center" Style="{StaticResource MotionFieldLabelStyle}" Text="控制卡名称" />
+                    <TextBlock Grid.Row="2" Margin="170,0,22,0" VerticalAlignment="Center" Foreground="{StaticResource MotionTextPrimaryBrush}" Text="{Binding CardName}" />
+                    <TextBlock Grid.Row="3" Margin="22,0,0,0" VerticalAlignment="Center" Style="{StaticResource MotionFieldLabelStyle}" Text="Driver" />
+                    <TextBlock Grid.Row="3" Margin="170,0,22,0" VerticalAlignment="Center" Foreground="{StaticResource MotionTextPrimaryBrush}" Text="{Binding DriverKey}" />
+                    <TextBlock Grid.Row="4" Margin="22,0,0,0" VerticalAlignment="Center" Style="{StaticResource MotionFieldLabelStyle}" Text="固件版本" />
+                    <TextBlock Grid.Row="4" Margin="170,0,22,0" VerticalAlignment="Center" Foreground="{StaticResource MotionTextPrimaryBrush}" Text="{Binding FirmwareVersion}" />
+                    <TextBlock Grid.Row="5" Margin="22,0,0,0" VerticalAlignment="Center" Style="{StaticResource MotionFieldLabelStyle}" Text="轴数量" />
+                    <TextBlock Grid.Row="5" Margin="170,0,22,0" VerticalAlignment="Center" Foreground="{StaticResource MotionTextPrimaryBrush}" Text="{Binding AxisCount}" />
+                    <TextBlock Grid.Row="6" Margin="22,0,0,0" VerticalAlignment="Center" Style="{StaticResource MotionFieldLabelStyle}" Text="DI / DO" />
+                    <TextBlock Grid.Row="6" Margin="170,0,22,0" VerticalAlignment="Center" Foreground="{StaticResource MotionTextPrimaryBrush}">
+                        <Run Text="{Binding DiCount, Mode=OneWay}" /><Run Text=" / " /><Run Text="{Binding DoCount, Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="7" Margin="22,0,0,0" VerticalAlignment="Center" Style="{StaticResource MotionFieldLabelStyle}" Text="操作结果" />
+                    <TextBlock Grid.Row="7" Margin="170,0,22,0" VerticalAlignment="Center" Foreground="{StaticResource MotionTextPrimaryBrush}"
+                               Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+
+                    <Border Grid.Row="2" Margin="22,0" VerticalAlignment="Top" BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,1,0,0" />
+                    <Border Grid.Row="3" Margin="22,0" VerticalAlignment="Top" BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,1,0,0" />
+                    <Border Grid.Row="4" Margin="22,0" VerticalAlignment="Top" BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,1,0,0" />
+                    <Border Grid.Row="5" Margin="22,0" VerticalAlignment="Top" BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,1,0,0" />
+                    <Border Grid.Row="6" Margin="22,0" VerticalAlignment="Top" BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,1,0,0" />
+                    <Border Grid.Row="7" Margin="22,0" VerticalAlignment="Top" BorderBrush="{StaticResource MotionBorderBrush}" BorderThickness="0,1,0,0" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

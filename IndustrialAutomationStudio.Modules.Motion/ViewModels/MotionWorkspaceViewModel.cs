@@ -11,6 +11,7 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
     private readonly IRegionManager _regionManager;
     private readonly MotionModuleOptions _options;
     private string _activePage = MotionNavigationNames.Home;
+    private string _activePageTitle = MotionNavigationDisplayNames.GetTitle(MotionNavigationNames.Home);
 
     public MotionWorkspaceViewModel(IRegionManager regionManager, MotionModuleOptions options)
     {
@@ -28,6 +29,9 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
     }
 
     public string ActivePage { get => _activePage; private set => SetProperty(ref _activePage, value); }
+    public string ActivePageTitle { get => _activePageTitle; private set => SetProperty(ref _activePageTitle, value); }
+    public string DriverLabel => $"Driver: {_options.DefaultDriverKey}";
+    public string VersionText => $"v{typeof(MotionWorkspaceViewModel).Assembly.GetName().Version}";
     public DelegateCommand NavigateHomeCommand { get; }
     public DelegateCommand NavigateConnectionCommand { get; }
     public DelegateCommand NavigateAxisConfigCommand { get; }
@@ -48,6 +52,7 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
     private void Navigate(string target, string? title = null)
     {
         ActivePage = target;
+        ActivePageTitle = MotionNavigationDisplayNames.GetTitle(target);
         var parameters = new NavigationParameters();
         if (!string.IsNullOrWhiteSpace(title))
         {
