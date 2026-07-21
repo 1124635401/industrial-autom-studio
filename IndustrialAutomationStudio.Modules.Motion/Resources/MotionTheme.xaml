@@ -85,6 +85,8 @@
     <Geometry x:Key="MotionIcon.Card">M2,5 L22,5 22,19 2,19 Z M6,9 L10,9 10,13 6,13 Z M14,10 L18,10 M14,14 L18,14</Geometry>
     <Geometry x:Key="MotionIcon.DigitalInput">M3,4 L18,4 18,20 3,20 Z M8,12 L21,12 M16,7 L21,12 16,17</Geometry>
     <Geometry x:Key="MotionIcon.DigitalOutput">M6,4 L21,4 21,20 6,20 Z M3,12 L16,12 M11,7 L16,12 11,17</Geometry>
+    <Geometry x:Key="MotionIcon.Previous">M15,4 L7,12 15,20</Geometry>
+    <Geometry x:Key="MotionIcon.Next">M9,4 L17,12 9,20</Geometry>
 
     <Style x:Key="MotionPageTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="27" />
@@ -337,6 +339,93 @@
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="20" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <Style x:Key="MotionIoSectionCardStyle"
+           TargetType="Border"
+           BasedOn="{StaticResource MotionCardStyle}">
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <Style x:Key="MotionIoPointCardStyle" TargetType="Border">
+        <Setter Property="MinHeight" Value="42" />
+        <Setter Property="Margin" Value="0,0,8,8" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="Background" Value="#FFFBFCFE" />
+        <Setter Property="BorderBrush" Value="{StaticResource MotionBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <Style x:Key="MotionIoStatusDotStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="10" />
+        <Setter Property="Height" Value="10" />
+        <Setter Property="Fill" Value="#FFAEB7C5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsOn}" Value="True">
+                <Setter Property="Fill" Value="{StaticResource MotionBrush.Success}" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsOn}" Value="False">
+                <Setter Property="Fill" Value="{StaticResource MotionBrush.Danger}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="MotionIoToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="38" />
+        <Setter Property="Height" Value="22" />
+        <Setter Property="Background" Value="#FFD5DAE2" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid Width="38" Height="22">
+                        <Border x:Name="Track"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="11" />
+                        <Ellipse x:Name="Thumb" Width="18" Height="18" Margin="2"
+                                 HorizontalAlignment="Left" Fill="White" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background"
+                                    Value="{StaticResource MotionBrush.Primary}" />
+                            <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Track" Property="Opacity" Value="0.86" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Cursor" Value="Arrow" />
+                            <Setter Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotionIoPagerButtonStyle"
+           TargetType="Button"
+           BasedOn="{StaticResource MotionIconButtonStyle}">
+        <Setter Property="Width" Value="34" />
+        <Setter Property="MinWidth" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Margin" Value="4,0,0,0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style x:Key="MotionIoPagerSelectedButtonStyle"
+           TargetType="Button"
+           BasedOn="{StaticResource MotionIoPagerButtonStyle}">
+        <Setter Property="Foreground" Value="{StaticResource MotionBrush.Primary}" />
+        <Setter Property="Background" Value="{StaticResource MotionPrimaryLightBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MotionBrush.Primary}" />
     </Style>
 
     <Style x:Key="MotionCardTitleStyle" TargetType="TextBlock">

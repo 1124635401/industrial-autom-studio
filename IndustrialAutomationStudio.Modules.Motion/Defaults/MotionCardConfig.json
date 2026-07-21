@@ -7,8 +7,8 @@
   "IpAddress": "127.0.0.1",
   "Port": 0,
   "AxisCount": 8,
-  "DiCount": 16,
-  "DoCount": 16,
+  "DiCount": 64,
+  "DoCount": 64,
   "AutoConnectOnStartup": false,
   "ConnectionParameters": {}
 }

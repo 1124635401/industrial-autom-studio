@@ -25,9 +25,11 @@ public sealed class MotionModule : IModule
         containerRegistry.RegisterSingleton<IAxisConfigValidator, AxisConfigValidator>();
         containerRegistry.RegisterSingleton<IAxisConfigurationValidator, AxisConfigurationValidator>();
         containerRegistry.RegisterSingleton<IAxisConfigRepository, JsonAxisConfigRepository>();
+        containerRegistry.RegisterSingleton<IIoDisplayNameRepository, JsonIoDisplayNameRepository>();
         containerRegistry.RegisterSingleton<IMotionCardConfigRepository, JsonMotionCardConfigRepository>();
         containerRegistry.RegisterSingleton<IMotionLogService, InMemoryMotionLogService>();
         containerRegistry.RegisterSingleton<IMotionCardService, MotionCardService>();
+        containerRegistry.RegisterSingleton<IIoMonitorService, IoMonitorService>();
         containerRegistry.RegisterSingleton<IAxisConfigService, AxisConfigService>();
         containerRegistry.RegisterSingleton<IMotionConfigurationService, MotionConfigurationService>();
         containerRegistry.RegisterSingleton<IConfigurationFileDialogService, WpfConfigurationFileDialogService>();
@@ -48,7 +50,7 @@ public sealed class MotionModule : IModule
             MotionNavigationNames.Log);
         containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
             MotionNavigationNames.AxisDebug);
-        containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
+        containerRegistry.RegisterForNavigation<IoMonitorView, IoMonitorViewModel>(
             MotionNavigationNames.IoMonitor);
         containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
             MotionNavigationNames.PointDebug);

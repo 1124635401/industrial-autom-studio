@@ -8,28 +8,33 @@ namespace IndustrialAutomationStudio.Modules.Motion.Hardware.Drivers.Mock;
 
 public sealed class MockMotionCardDriver : IMotionCardDriver
 {
-    private static readonly string[] AxisNames =
-        ["WorkPosition", "Z1", "Z2", "R", "Y1", "X1", "Y2", "X2"];
-
     private readonly MotionCardConfig _config;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Dictionary<AxisAddress, AxisConfig> _axes;
+    private readonly bool?[] _digitalInputs;
+    private readonly bool?[] _digitalOutputs;
     private bool _disposed;
 
     public MockMotionCardDriver(MotionCardConfig config)
     {
         ArgumentNullException.ThrowIfNull(config);
         _config = config;
-        _axes = AxisNames
-            .Select((name, axisNo) => AxisConfig.CreateDefault(
+        _axes = Enumerable.Range(0, Math.Max(0, config.AxisCount))
+            .Select(axisNo => AxisConfig.CreateDefault(
                 new AxisAddress(config.CardNo, axisNo),
-                name))
+                $"Axis{axisNo}"))
             .ToDictionary(axis => axis.Address);
+        _digitalInputs = Enumerable.Range(1, Math.Max(0, config.DiCount))
+            .Select(index => (bool?)(index % 2 == 1))
+            .ToArray();
+        _digitalOutputs = new bool?[Math.Max(0, config.DoCount)];
+        Array.Fill(_digitalOutputs, false);
     }
 
     public int CardNo => _config.CardNo;
     public string DriverKey => "Mock";
     public bool IsConnected { get; private set; }
+    public bool CanWriteDigitalOutputs => true;
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
@@ -139,6 +144,45 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
             }
 
             _axes[config.Address] = config with { };
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task<IoSnapshot> ReadIoSnapshotAsync(
+        CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("ReadIoSnapshot");
+            return new IoSnapshot(
+                _digitalInputs.ToArray(),
+                _digitalOutputs.ToArray());
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task WriteDigitalOutputAsync(
+        int index,
+        bool value,
+        CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("WriteDigitalOutput");
+            if (index < 1 || index > _digitalOutputs.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            _digitalOutputs[index - 1] = value;
         }
         finally
         {

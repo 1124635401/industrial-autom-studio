@@ -12,8 +12,8 @@ public sealed record MotionCardConfig
     public string IpAddress { get; init; } = "127.0.0.1";
     public int Port { get; init; }
     public int AxisCount { get; init; } = 8;
-    public int DiCount { get; init; } = 16;
-    public int DoCount { get; init; } = 16;
+    public int DiCount { get; init; } = 64;
+    public int DoCount { get; init; } = 64;
     public bool AutoConnectOnStartup { get; init; }
     public IReadOnlyDictionary<string, string> ConnectionParameters { get; init; }
         = new Dictionary<string, string>();

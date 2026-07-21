@@ -6,9 +6,7 @@ namespace IndustrialAutomationStudio.Modules.Motion;
 public sealed class MotionModuleOptions
 {
     public string ConfigDirectory { get; init; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "IndustrialAutomationStudio",
-        "Motion",
+        AppContext.BaseDirectory,
         "Configs");
 
     public string HostRegionName { get; init; } = MotionRegionNames.HostContent;

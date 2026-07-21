@@ -1,0 +1,338 @@
+<UserControl x:Class="IndustrialAutomationStudio.Modules.Motion.Views.IoMonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             Background="Transparent"
+             ToolTip="{Binding StatusMessage}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="IO 监控" />
+                <TextBlock Margin="0,7,0,0" FontSize="13"
+                           Foreground="{StaticResource MotionTextSecondaryBrush}"
+                           Text="实时监控控制器的数字输入输出信号状态" />
+            </StackPanel>
+            <TextBlock Grid.Column="1" MaxWidth="320" VerticalAlignment="Bottom"
+                       TextTrimming="CharacterEllipsis"
+                       Foreground="{StaticResource MotionTextSecondaryBrush}"
+                       Text="{Binding StatusMessage}" />
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="22" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource MotionIoSectionCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="20" Height="20" Margin="0,0,10,0" Stretch="Uniform"
+                              Stroke="{StaticResource MotionBrush.Primary}" StrokeThickness="1.6"
+                              Data="{StaticResource MotionIcon.DigitalInput}" />
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}"
+                                   Foreground="{StaticResource MotionBrush.Primary}"
+                                   Text="数字输入 (DI)" />
+                    </StackPanel>
+
+                    <ItemsControl Grid.Row="1" Margin="0,18,0,10"
+                                  ItemsSource="{Binding PagedDiPoints}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" Rows="8" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource MotionIoPointCardStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse Style="{StaticResource MotionIoStatusDotStyle}" />
+                                        <Grid Grid.Column="1" Margin="9,0,0,0">
+                                            <TextBlock VerticalAlignment="Center" FontSize="13"
+                                                       Text="{Binding DisplayName}"
+                                                       ToolTip="{Binding DisplayName}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MouseLeftButtonDown="NameText_OnMouseLeftButtonDown">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBox x:Name="NameEditor" MinWidth="0" Margin="0" Padding="2,0"
+                                                     VerticalContentAlignment="Center" FontSize="13"
+                                                     BorderBrush="{StaticResource MotionBrush.Primary}"
+                                                     BorderThickness="0,0,0,1"
+                                                     Background="Transparent"
+                                                     Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                                     KeyDown="NameEditor_OnKeyDown"
+                                                     LostKeyboardFocus="NameEditor_OnLostKeyboardFocus">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center"
+                                   Foreground="{StaticResource MotionTextSecondaryBrush}">
+                            <Run Text="共 " /><Run Text="{Binding DiTotalCount, Mode=OneWay}" /><Run Text=" 项" />
+                        </TextBlock>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                    ToolTip="{Binding DiCurrentPage}">
+                            <Button Style="{StaticResource MotionIoPagerButtonStyle}"
+                                    Command="{Binding DiPreviousPageCommand}">
+                                <Path Width="14" Height="14" Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Previous}" />
+                            </Button>
+                            <ItemsControl ItemsSource="{Binding DiPageTokens}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <TextBlock Width="24" Margin="4,0,0,0" Text="{Binding Label}"
+                                                       TextAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEllipsis}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <Button Content="{Binding Label}"
+                                                    Command="{Binding DataContext.DiSelectPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource MotionIoPagerButtonStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="Foreground" Value="{StaticResource MotionBrush.Primary}" />
+                                                                <Setter Property="Background" Value="{StaticResource MotionPrimaryLightBrush}" />
+                                                                <Setter Property="BorderBrush" Value="{StaticResource MotionBrush.Primary}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsEllipsis}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Style="{StaticResource MotionIoPagerButtonStyle}"
+                                    Command="{Binding DiNextPageCommand}">
+                                <Path Width="14" Height="14" Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Next}" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource MotionIoSectionCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Path Width="20" Height="20" Margin="0,0,10,0" Stretch="Uniform"
+                              Stroke="{StaticResource MotionBrush.Success}" StrokeThickness="1.6"
+                              Data="{StaticResource MotionIcon.DigitalOutput}" />
+                        <TextBlock Style="{StaticResource MotionCardTitleStyle}"
+                                   Foreground="{StaticResource MotionBrush.Success}"
+                                   Text="数字输出 (DO)" />
+                    </StackPanel>
+
+                    <ItemsControl Grid.Row="1" Margin="0,18,0,10"
+                                  ItemsSource="{Binding PagedDoPoints}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3" Rows="8" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource MotionIoPointCardStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Ellipse Style="{StaticResource MotionIoStatusDotStyle}" />
+                                        <Grid Grid.Column="1" Margin="8,0,6,0">
+                                            <TextBlock VerticalAlignment="Center" FontSize="12"
+                                                       Text="{Binding DisplayName}"
+                                                       ToolTip="{Binding DisplayName}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MouseLeftButtonDown="NameText_OnMouseLeftButtonDown">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBox x:Name="NameEditor" MinWidth="0" Margin="0" Padding="2,0"
+                                                     VerticalContentAlignment="Center" FontSize="12"
+                                                     BorderBrush="{StaticResource MotionBrush.Primary}"
+                                                     BorderThickness="0,0,0,1"
+                                                     Background="Transparent"
+                                                     Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"
+                                                     KeyDown="NameEditor_OnKeyDown"
+                                                     LostKeyboardFocus="NameEditor_OnLostKeyboardFocus">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                        </Grid>
+                                        <ToggleButton Grid.Column="2"
+                                                      Style="{StaticResource MotionIoToggleStyle}"
+                                                      IsChecked="{Binding IsOn, Mode=OneWay}"
+                                                      IsEnabled="{Binding CanOperate}"
+                                                      Command="{Binding DataContext.ToggleDoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center"
+                                   Foreground="{StaticResource MotionTextSecondaryBrush}">
+                            <Run Text="共 " /><Run Text="{Binding DoTotalCount, Mode=OneWay}" /><Run Text=" 项" />
+                        </TextBlock>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                    ToolTip="{Binding DoCurrentPage}">
+                            <Button Style="{StaticResource MotionIoPagerButtonStyle}"
+                                    Command="{Binding DoPreviousPageCommand}">
+                                <Path Width="14" Height="14" Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Previous}" />
+                            </Button>
+                            <ItemsControl ItemsSource="{Binding DoPageTokens}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <TextBlock Width="24" Margin="4,0,0,0" Text="{Binding Label}"
+                                                       TextAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsEllipsis}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <Button Content="{Binding Label}"
+                                                    Command="{Binding DataContext.DoSelectPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource MotionIoPagerButtonStyle}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="Foreground" Value="{StaticResource MotionBrush.Primary}" />
+                                                                <Setter Property="Background" Value="{StaticResource MotionPrimaryLightBrush}" />
+                                                                <Setter Property="BorderBrush" Value="{StaticResource MotionBrush.Primary}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsEllipsis}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <Button Style="{StaticResource MotionIoPagerButtonStyle}"
+                                    Command="{Binding DoNextPageCommand}">
+                                <Path Width="14" Height="14" Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.7" Data="{StaticResource MotionIcon.Next}" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

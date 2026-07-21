@@ -6,6 +6,7 @@ namespace IndustrialAutomationStudio.Modules.Motion.Services.Interfaces;
 public interface IMotionCardService : IAsyncDisposable
 {
     bool IsConnected { get; }
+    bool CanWriteDigitalOutputs { get; }
     event EventHandler<bool>? ConnectionChanged;
     Task ConnectAsync(
         MotionCardConfig? config = null,
@@ -18,5 +19,10 @@ public interface IMotionCardService : IAsyncDisposable
         CancellationToken cancellationToken = default);
     Task WriteAxisConfigAsync(
         AxisConfig config,
+        CancellationToken cancellationToken = default);
+    Task<IoSnapshot> ReadIoSnapshotAsync(CancellationToken cancellationToken = default);
+    Task WriteDigitalOutputAsync(
+        int index,
+        bool value,
         CancellationToken cancellationToken = default);
 }

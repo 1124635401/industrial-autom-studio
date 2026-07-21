@@ -27,6 +27,8 @@ public sealed class MotionCardService : IMotionCardService
     }
 
     public bool IsConnected => _driver?.IsConnected == true;
+    public bool CanWriteDigitalOutputs =>
+        _driver is { IsConnected: true, CanWriteDigitalOutputs: true };
     public event EventHandler<bool>? ConnectionChanged;
 
     public async Task ConnectAsync(
@@ -95,6 +97,16 @@ public sealed class MotionCardService : IMotionCardService
         AxisConfig config,
         CancellationToken cancellationToken = default) =>
         RequireDriver().WriteAxisConfigAsync(config, cancellationToken);
+
+    public Task<IoSnapshot> ReadIoSnapshotAsync(
+        CancellationToken cancellationToken = default) =>
+        RequireDriver().ReadIoSnapshotAsync(cancellationToken);
+
+    public Task WriteDigitalOutputAsync(
+        int index,
+        bool value,
+        CancellationToken cancellationToken = default) =>
+        RequireDriver().WriteDigitalOutputAsync(index, value, cancellationToken);
 
     public async ValueTask DisposeAsync()
     {

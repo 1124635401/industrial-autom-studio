@@ -10,6 +10,7 @@ public interface IMotionCardDriver : IAsyncDisposable
     int CardNo { get; }
     string DriverKey { get; }
     bool IsConnected { get; }
+    bool CanWriteDigitalOutputs { get; }
     Task ConnectAsync(CancellationToken cancellationToken = default);
     Task DisconnectAsync(CancellationToken cancellationToken = default);
     Task<MotionCardInfo> GetCardInfoAsync(CancellationToken cancellationToken = default);
@@ -19,5 +20,10 @@ public interface IMotionCardDriver : IAsyncDisposable
         CancellationToken cancellationToken = default);
     Task WriteAxisConfigAsync(
         AxisConfig config,
+        CancellationToken cancellationToken = default);
+    Task<IoSnapshot> ReadIoSnapshotAsync(CancellationToken cancellationToken = default);
+    Task WriteDigitalOutputAsync(
+        int index,
+        bool value,
         CancellationToken cancellationToken = default);
 }
