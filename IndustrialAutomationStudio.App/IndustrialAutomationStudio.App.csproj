@@ -8,6 +8,13 @@
     <PackageReference Include="Prism.DryIoc" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\Assembly\ecat_motion.dll" Link="ecat_motion.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>

@@ -10,5 +10,9 @@
   "DiCount": 64,
   "DoCount": 64,
   "AutoConnectOnStartup": false,
+  "EniFilePath": "",
+  "SlaveParameterFilePath": "",
+  "EmergencyInputInverted": 0,
+  "EmergencyAction": 0,
   "ConnectionParameters": {}
 }

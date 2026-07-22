@@ -1,5 +1,6 @@
 using IndustrialAutomationStudio.Modules.Motion.Hardware;
 using IndustrialAutomationStudio.Modules.Motion.Hardware.Drivers.Mock;
+using IndustrialAutomationStudio.Modules.Motion.Hardware.Drivers.LctM60;
 using IndustrialAutomationStudio.Modules.Motion.Hardware.Interfaces;
 using IndustrialAutomationStudio.Modules.Motion.Navigation;
 using IndustrialAutomationStudio.Modules.Motion.Repositories.Interfaces;
@@ -21,6 +22,7 @@ public sealed class MotionModule : IModule
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
         containerRegistry.RegisterSingleton<IMotionCardDriverFactory, MockMotionCardDriverFactory>();
+        containerRegistry.RegisterSingleton<IMotionCardDriverFactory, LctM60MotionCardDriverFactory>();
         containerRegistry.RegisterSingleton<DriverRegistry>();
         containerRegistry.RegisterSingleton<IAxisConfigValidator, AxisConfigValidator>();
         containerRegistry.RegisterSingleton<IAxisConfigurationValidator, AxisConfigurationValidator>();

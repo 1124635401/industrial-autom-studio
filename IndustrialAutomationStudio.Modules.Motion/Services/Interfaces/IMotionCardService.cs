@@ -7,6 +7,7 @@ public interface IMotionCardService : IAsyncDisposable
 {
     bool IsConnected { get; }
     bool CanWriteDigitalOutputs { get; }
+    IReadOnlyList<string> AvailableDriverKeys { get; }
     event EventHandler<bool>? ConnectionChanged;
     Task ConnectAsync(
         MotionCardConfig? config = null,

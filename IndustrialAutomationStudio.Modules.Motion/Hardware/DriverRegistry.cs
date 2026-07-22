@@ -22,6 +22,10 @@ public sealed class DriverRegistry
         _factories = map;
     }
 
+    public IReadOnlyList<string> DriverKeys => _factories.Keys
+        .Order(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
     public IMotionCardDriverFactory Resolve(string driverKey)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(driverKey);

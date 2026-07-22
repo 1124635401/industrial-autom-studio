@@ -15,6 +15,10 @@ public sealed record MotionCardConfig
     public int DiCount { get; init; } = 64;
     public int DoCount { get; init; } = 64;
     public bool AutoConnectOnStartup { get; init; }
+    public string EniFilePath { get; init; } = string.Empty;
+    public string SlaveParameterFilePath { get; init; } = string.Empty;
+    public int EmergencyInputInverted { get; init; }
+    public int EmergencyAction { get; init; }
     public IReadOnlyDictionary<string, string> ConnectionParameters { get; init; }
         = new Dictionary<string, string>();
 }

@@ -105,3 +105,31 @@ regionManager.RequestNavigate(
 4. 将 `MotionCardConfig.DriverKey` 设置为新的 DriverKey。
 
 View、ViewModel 和通用 Service 不引用厂商 SDK。多个 SDK 如有版本冲突，可拆为独立 Driver 项目，接口与调用链保持不变。
+
+## 凌臣 M60 Driver
+
+控制卡连接页可选择 `LctM60` Driver。首次连接前需要在页面配置并保存：
+
+- 板卡号。
+- EtherCAT ENI 文件。
+- 从站参数文件。
+- 急停输入极性（`0` 或 `1`）。
+- 急停动作（`0` 到 `255`）。
+
+应用固定使用 x64。原生库的仓库存放位置为 `Assembly/ecat_motion.dll`，构建和发布时自动复制到 `IndustrialAutomationStudio.App.exe` 同级目录。运行机器仍需正确安装凌臣 M60 板卡驱动及其系统级依赖。
+
+连接调用顺序与 WRVision 保持一致：
+
+```text
+M_Open
+→ M_SetEmgInv
+→ M_SetEmgAction
+→ M_ClrEmg
+→ M_LoadEni
+→ M_ResetFpga
+→ M_ConnectECAT
+→ M_LoadParamFromFile
+→ M_GetSlaveResource
+```
+
+M60 扫描轴号按原生 SDK 约定从 `1` 开始。扫描只用于连接诊断，不会合并或覆盖 `AxisConfig.json`。

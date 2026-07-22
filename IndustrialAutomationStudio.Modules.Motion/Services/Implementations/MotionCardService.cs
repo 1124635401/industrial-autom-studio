@@ -29,6 +29,7 @@ public sealed class MotionCardService : IMotionCardService
     public bool IsConnected => _driver?.IsConnected == true;
     public bool CanWriteDigitalOutputs =>
         _driver is { IsConnected: true, CanWriteDigitalOutputs: true };
+    public IReadOnlyList<string> AvailableDriverKeys => _registry.DriverKeys;
     public event EventHandler<bool>? ConnectionChanged;
 
     public async Task ConnectAsync(
