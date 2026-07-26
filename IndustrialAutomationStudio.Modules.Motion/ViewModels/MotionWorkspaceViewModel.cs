@@ -8,18 +8,32 @@ namespace IndustrialAutomationStudio.Modules.Motion.ViewModels;
 
 public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
 {
-    private readonly IRegionManager _regionManager;
+    private readonly Action<string, NavigationParameters, Action<NavigationResult>> _requestNavigate;
     private readonly MotionModuleOptions _options;
     private string _activePage = MotionNavigationNames.Home;
     private string _activePageTitle = MotionNavigationDisplayNames.GetTitle(MotionNavigationNames.Home);
 
     public MotionWorkspaceViewModel(IRegionManager regionManager, MotionModuleOptions options)
+        : this(
+            (target, parameters, callback) => regionManager.RequestNavigate(
+                options.WorkspaceRegionName,
+                target,
+                callback,
+                parameters),
+            options)
     {
-        _regionManager = regionManager;
+    }
+
+    internal MotionWorkspaceViewModel(
+        Action<string, NavigationParameters, Action<NavigationResult>> requestNavigate,
+        MotionModuleOptions options)
+    {
+        _requestNavigate = requestNavigate;
         _options = options;
         NavigateHomeCommand = CreateNavigation(MotionNavigationNames.Home);
         NavigateConnectionCommand = CreateNavigation(MotionNavigationNames.Connection);
         NavigateAxisConfigCommand = CreateNavigation(MotionNavigationNames.AxisConfig);
+        NavigateGroupManagementCommand = CreateNavigation(MotionNavigationNames.GroupManagement);
         NavigateAxisDebugCommand = CreateNavigation(MotionNavigationNames.AxisDebug, "单轴调试");
         NavigateIoMonitorCommand = CreateNavigation(MotionNavigationNames.IoMonitor, "IO 监控");
         NavigatePointDebugCommand = CreateNavigation(MotionNavigationNames.PointDebug, "点位调试");
@@ -35,6 +49,7 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
     public DelegateCommand NavigateHomeCommand { get; }
     public DelegateCommand NavigateConnectionCommand { get; }
     public DelegateCommand NavigateAxisConfigCommand { get; }
+    public DelegateCommand NavigateGroupManagementCommand { get; }
     public DelegateCommand NavigateAxisDebugCommand { get; }
     public DelegateCommand NavigateIoMonitorCommand { get; }
     public DelegateCommand NavigatePointDebugCommand { get; }
@@ -51,14 +66,21 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
 
     private void Navigate(string target, string? title = null)
     {
-        ActivePage = target;
-        ActivePageTitle = MotionNavigationDisplayNames.GetTitle(target);
         var parameters = new NavigationParameters();
         if (!string.IsNullOrWhiteSpace(title))
         {
             parameters.Add("title", title);
         }
 
-        _regionManager.RequestNavigate(_options.WorkspaceRegionName, target, parameters);
+        _requestNavigate(target, parameters, result =>
+        {
+            if (!result.Success)
+            {
+                return;
+            }
+
+            ActivePage = target;
+            ActivePageTitle = MotionNavigationDisplayNames.GetTitle(target);
+        });
     }
 }

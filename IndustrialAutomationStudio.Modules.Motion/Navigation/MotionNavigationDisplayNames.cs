@@ -7,6 +7,7 @@ public static class MotionNavigationDisplayNames
         MotionNavigationNames.Home => "运动首页",
         MotionNavigationNames.Connection => "控制卡连接",
         MotionNavigationNames.AxisConfig => "轴配置",
+        MotionNavigationNames.GroupManagement => "分组管理",
         MotionNavigationNames.AxisDebug => "单轴调试",
         MotionNavigationNames.IoMonitor => "IO 监控",
         MotionNavigationNames.PointDebug => "点位调试",

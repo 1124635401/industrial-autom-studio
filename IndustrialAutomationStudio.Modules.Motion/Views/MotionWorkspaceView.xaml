@@ -56,6 +56,16 @@
                             </StackPanel>
                         </ToggleButton>
                         <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
+                                      IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionGroupManagement}"
+                                      Command="{Binding NavigateGroupManagementCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="21" Height="21" Stretch="Uniform" StrokeThickness="1.6"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"
+                                      Data="{StaticResource MotionIcon.Group}" />
+                                <TextBlock Margin="16,0,0,0" VerticalAlignment="Center" Text="分组管理" />
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource MotionNavigationToggleStyle}"
                                       IsChecked="{Binding ActivePage, Mode=OneWay, Converter={StaticResource MotionEqualityConverter}, ConverterParameter=MotionAxisDebug}"
                                       Command="{Binding NavigateAxisDebugCommand}">
                             <StackPanel Orientation="Horizontal">

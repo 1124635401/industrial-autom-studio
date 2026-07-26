@@ -1,6 +1,8 @@
 using System.IO;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using IndustrialAutomationStudio.Modules.Motion.Models;
 
 namespace IndustrialAutomationStudio.Modules.Motion.Repositories.Json;
 
@@ -9,7 +11,8 @@ internal sealed class JsonFileStore
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         WriteIndented = true,
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter<AxisRole>(allowIntegerValues: false) }
     };
 
     public async Task<T> ReadAsync<T>(string path, CancellationToken cancellationToken)

@@ -27,12 +27,15 @@ public sealed class MotionModule : IModule
         containerRegistry.RegisterSingleton<IAxisConfigValidator, AxisConfigValidator>();
         containerRegistry.RegisterSingleton<IAxisConfigurationValidator, AxisConfigurationValidator>();
         containerRegistry.RegisterSingleton<IAxisConfigRepository, JsonAxisConfigRepository>();
+        containerRegistry.RegisterSingleton<IAxisGroupConfigRepository, JsonAxisGroupConfigRepository>();
         containerRegistry.RegisterSingleton<IIoDisplayNameRepository, JsonIoDisplayNameRepository>();
         containerRegistry.RegisterSingleton<IMotionCardConfigRepository, JsonMotionCardConfigRepository>();
         containerRegistry.RegisterSingleton<IMotionLogService, InMemoryMotionLogService>();
         containerRegistry.RegisterSingleton<IMotionCardService, MotionCardService>();
         containerRegistry.RegisterSingleton<IIoMonitorService, IoMonitorService>();
         containerRegistry.RegisterSingleton<IAxisConfigService, AxisConfigService>();
+        containerRegistry.RegisterSingleton<IAxisGroupConfigService, AxisGroupConfigService>();
+        containerRegistry.RegisterSingleton<IAxisGroupPromptService, WpfAxisGroupPromptService>();
         containerRegistry.RegisterSingleton<IMotionConfigurationService, MotionConfigurationService>();
         containerRegistry.RegisterSingleton<IConfigurationFileDialogService, WpfConfigurationFileDialogService>();
         containerRegistry.RegisterSingleton<IConfigurationPromptService, WpfConfigurationPromptService>();
@@ -48,6 +51,8 @@ public sealed class MotionModule : IModule
             MotionNavigationNames.Connection);
         containerRegistry.RegisterForNavigation<AxisConfigView, AxisConfigViewModel>(
             MotionNavigationNames.AxisConfig);
+        containerRegistry.RegisterForNavigation<GroupManagementView, GroupManagementViewModel>(
+            MotionNavigationNames.GroupManagement);
         containerRegistry.RegisterForNavigation<MotionLogView, MotionLogViewModel>(
             MotionNavigationNames.Log);
         containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(

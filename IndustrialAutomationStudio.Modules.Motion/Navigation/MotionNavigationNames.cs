@@ -6,6 +6,7 @@ public static class MotionNavigationNames
     public const string Home = "MotionHome";
     public const string Connection = "MotionConnection";
     public const string AxisConfig = "MotionAxisConfig";
+    public const string GroupManagement = "MotionGroupManagement";
     public const string AxisDebug = "MotionAxisDebug";
     public const string IoMonitor = "MotionIoMonitor";
     public const string PointDebug = "MotionPointDebug";
