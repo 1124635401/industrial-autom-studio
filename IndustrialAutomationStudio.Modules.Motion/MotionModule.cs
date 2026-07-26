@@ -61,7 +61,7 @@ public sealed class MotionModule : IModule
             MotionNavigationNames.IoMonitor);
         containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
             MotionNavigationNames.PointDebug);
-        containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
+        containerRegistry.RegisterForNavigation<MultiAxisMotionView, MultiAxisMotionViewModel>(
             MotionNavigationNames.MultiAxis);
         containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
             MotionNavigationNames.Alarm);
