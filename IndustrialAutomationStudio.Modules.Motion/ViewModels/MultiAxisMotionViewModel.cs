@@ -12,6 +12,7 @@ public sealed class MultiAxisMotionViewModel : BindableBase, INavigationAware
 {
     private readonly IAxisConfigService _axisConfigService;
     private readonly IAxisGroupConfigService _groupConfigService;
+    private readonly JogModuleFactory _jogModuleFactory = new();
     private IReadOnlyDictionary<AxisAddress, AxisConfig> _axes =
         new Dictionary<AxisAddress, AxisConfig>();
     private AxisGroupOptionViewModel? _selectedGroup;
@@ -30,6 +31,10 @@ public sealed class MultiAxisMotionViewModel : BindableBase, INavigationAware
         _axisConfigService = axisConfigService;
         _groupConfigService = groupConfigService;
         LoadCommand = new AsyncDelegateCommand(LoadAsync);
+        BeginPreviewCommand = new DelegateCommand<JogDirectionViewModel>(
+            BeginPreview);
+        EndPreviewCommand = new DelegateCommand<JogDirectionViewModel>(
+            EndPreview);
     }
 
     public ObservableCollection<AxisGroupOptionViewModel> Groups { get; } = [];
@@ -39,6 +44,8 @@ public sealed class MultiAxisMotionViewModel : BindableBase, INavigationAware
     public ObservableCollection<JogModuleViewModel> RotaryModules { get; } = [];
     public ObservableCollection<JogModuleViewModel> AuxiliaryModules { get; } = [];
     public AsyncDelegateCommand LoadCommand { get; }
+    public DelegateCommand<JogDirectionViewModel> BeginPreviewCommand { get; }
+    public DelegateCommand<JogDirectionViewModel> EndPreviewCommand { get; }
 
     public bool IsBusy
     {
@@ -181,24 +188,15 @@ public sealed class MultiAxisMotionViewModel : BindableBase, INavigationAware
             return;
         }
 
-        var members = SelectedGroup.Config.Members;
-        var x = members.FirstOrDefault(member => member.Role == AxisRole.X);
-        var y = members.FirstOrDefault(member => member.Role == AxisRole.Y);
-        var consumed = new HashSet<AxisGroupMember>();
-        if (x is not null && y is not null)
+        var result = _jogModuleFactory.Build(SelectedGroup.Config, _axes);
+        foreach (var module in result.Modules)
         {
-            AddModule(CreatePlanarModule(x, y));
-            consumed.Add(x);
-            consumed.Add(y);
+            AddModule(module);
         }
 
-        foreach (var member in members
-                     .Where(member => !consumed.Contains(member))
-                     .OrderBy(member => RoleOrder(member.Role))
-                     .ThenBy(member => member.Address.CardNo)
-                     .ThenBy(member => member.Address.AxisNo))
+        foreach (var address in result.MissingAxes)
         {
-            AddModule(CreateModule(member));
+            _missingAxes.Add(address);
         }
 
         RaiseModuleStateChanged();

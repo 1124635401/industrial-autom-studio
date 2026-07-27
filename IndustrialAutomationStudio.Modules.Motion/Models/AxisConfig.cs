@@ -24,6 +24,8 @@ public sealed record AxisConfig
     public double InPositionError { get; init; }
     public double InPositionTimeout { get; init; }
     public double StopVelocityThreshold { get; init; }
+    public double? NegativeSoftLimit { get; init; }
+    public double? PositiveSoftLimit { get; init; }
     public int TxPdoStart { get; init; }
     public int RxPdoStart { get; init; }
     public bool IsConfigured { get; init; }

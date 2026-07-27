@@ -22,6 +22,20 @@ public sealed class AxisConfigurationValidator : IAxisConfigurationValidator
         AddIf(config.Deceleration < 0, nameof(config.Deceleration), "减速度不能小于 0");
         AddIf(config.STime < 0, nameof(config.STime), "S 曲线时间不能小于 0");
         AddIf(config.InPositionError < 0, nameof(config.InPositionError), "到位误差不能小于 0");
+        AddIf(
+            config.NegativeSoftLimit is { } negative && !double.IsFinite(negative),
+            nameof(config.NegativeSoftLimit),
+            "负软限位必须是有限数值");
+        AddIf(
+            config.PositiveSoftLimit is { } positive && !double.IsFinite(positive),
+            nameof(config.PositiveSoftLimit),
+            "正软限位必须是有限数值");
+        AddIf(
+            config.NegativeSoftLimit is { } minimum &&
+            config.PositiveSoftLimit is { } maximum &&
+            minimum > maximum,
+            "SoftLimit",
+            "负软限位不能大于正软限位");
         AddIf(config.JogReverse is not (1 or -1), nameof(config.JogReverse), "点动方向只能是 1 或 -1");
         AddIf(config.HomeAcceleration < 0, nameof(config.HomeAcceleration), "回零加速度不能小于 0");
         AddIf(config.HomeVelocity1 < 0, nameof(config.HomeVelocity1), "回零速度 1 不能小于 0");

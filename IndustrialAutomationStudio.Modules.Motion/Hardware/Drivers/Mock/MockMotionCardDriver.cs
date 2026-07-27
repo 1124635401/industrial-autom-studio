@@ -11,6 +11,7 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
     private readonly MotionCardConfig _config;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Dictionary<AxisAddress, AxisConfig> _axes;
+    private readonly Dictionary<AxisAddress, AxisPulseState> _axisStates;
     private readonly bool?[] _digitalInputs;
     private readonly bool?[] _digitalOutputs;
     private bool _disposed;
@@ -24,6 +25,14 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
                 new AxisAddress(config.CardNo, axisNo),
                 $"Axis{axisNo}"))
             .ToDictionary(axis => axis.Address);
+        _axisStates = _axes.Keys.ToDictionary(
+            address => address,
+            address => new AxisPulseState
+            {
+                Address = address,
+                ServoOn = true,
+                InPosition = true
+            });
         _digitalInputs = Enumerable.Range(1, Math.Max(0, config.DiCount))
             .Select(index => (bool?)(index % 2 == 1))
             .ToArray();
@@ -35,6 +44,7 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
     public string DriverKey => "Mock";
     public bool IsConnected { get; private set; }
     public bool CanWriteDigitalOutputs => true;
+    public bool CanControlMotion => true;
 
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
@@ -190,6 +200,127 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
         }
     }
 
+    public async Task<IReadOnlyList<AxisPulseState>> ReadAxisStatesAsync(
+        IReadOnlyCollection<AxisAddress> addresses,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(addresses);
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("ReadAxisStates");
+            return addresses
+                .Select(address => GetAxisState(address, "ReadAxisStates") with { })
+                .ToArray();
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task StartJogAsync(
+        AxisAddress address,
+        double velocityPulsesPerSecond,
+        MotionProfile profile,
+        CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("StartJog");
+            if (!double.IsFinite(velocityPulsesPerSecond) ||
+                velocityPulsesPerSecond == 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(velocityPulsesPerSecond));
+            }
+
+            var state = GetAxisState(address, "StartJog");
+            _axisStates[address] = state with
+            {
+                VelocityPulsesPerSecond = velocityPulsesPerSecond,
+                IsMoving = true,
+                InPosition = false
+            };
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task MoveAbsoluteAsync(
+        AxisPulseTarget target,
+        double velocityPulsesPerSecond,
+        MotionProfile profile,
+        CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("MoveAbsolute");
+            CompleteMove(target, "MoveAbsolute");
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task MoveSynchronizedAsync(
+        IReadOnlyList<AxisPulseTarget> targets,
+        double accelerationPulsesPerSecondSquared,
+        double velocityPulsesPerSecond,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(targets);
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("MoveSynchronized");
+            foreach (var target in targets)
+            {
+                _ = GetAxisState(target.Address, "MoveSynchronized");
+            }
+
+            foreach (var target in targets)
+            {
+                CompleteMove(target, "MoveSynchronized");
+            }
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    public async Task StopAxesAsync(
+        IReadOnlyCollection<AxisAddress> addresses,
+        MotionStopMode mode,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(addresses);
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("StopAxes");
+            foreach (var address in addresses)
+            {
+                var state = GetAxisState(address, "StopAxes");
+                _axisStates[address] = state with
+                {
+                    VelocityPulsesPerSecond = 0,
+                    IsMoving = false,
+                    InPosition = true
+                };
+            }
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_disposed)
@@ -212,6 +343,24 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
     }
 
     private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, this);
+
+    private AxisPulseState GetAxisState(AxisAddress address, string operation) =>
+        _axisStates.TryGetValue(address, out var state)
+            ? state
+            : throw Failure(operation, $"未找到轴 {address.CardNo}:{address.AxisNo}。");
+
+    private void CompleteMove(AxisPulseTarget target, string operation)
+    {
+        var state = GetAxisState(target.Address, operation);
+        _axisStates[target.Address] = state with
+        {
+            CommandPulses = target.TargetPulses,
+            ActualPulses = target.TargetPulses,
+            VelocityPulsesPerSecond = 0,
+            IsMoving = false,
+            InPosition = true
+        };
+    }
 
     private MotionDriverException Failure(string operation, string message) =>
         new(message, DriverKey, operation, CardNo);

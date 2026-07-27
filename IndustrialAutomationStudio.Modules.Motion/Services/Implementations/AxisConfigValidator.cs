@@ -36,6 +36,20 @@ public sealed class AxisConfigValidator : IAxisConfigValidator
         AddIf(config.InPositionError < 0, "InPositionError", "到位误差不能小于 0");
         AddIf(config.InPositionTimeout <= 0, "InPositionTimeout", "到位超时时间必须大于 0");
         AddIf(config.StopVelocityThreshold < 0, "StopVelocityThreshold", "停止速度阈值不能小于 0");
+        AddIf(
+            config.NegativeSoftLimit is { } negative && !double.IsFinite(negative),
+            "NegativeSoftLimit",
+            "负软限位必须是有限数值");
+        AddIf(
+            config.PositiveSoftLimit is { } positive && !double.IsFinite(positive),
+            "PositiveSoftLimit",
+            "正软限位必须是有限数值");
+        AddIf(
+            config.NegativeSoftLimit is { } minimum &&
+            config.PositiveSoftLimit is { } maximum &&
+            minimum > maximum,
+            "SoftLimit",
+            "负软限位不能大于正软限位");
         AddIf(config.TxPdoStart < 0, "TxPdoStart", "TxPdoStart 不能小于 0");
         AddIf(config.RxPdoStart < 0, "RxPdoStart", "RxPdoStart 不能小于 0");
 

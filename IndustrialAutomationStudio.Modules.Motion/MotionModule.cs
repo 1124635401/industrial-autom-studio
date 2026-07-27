@@ -9,6 +9,7 @@ using IndustrialAutomationStudio.Modules.Motion.Services.Implementations;
 using IndustrialAutomationStudio.Modules.Motion.Services.Interfaces;
 using IndustrialAutomationStudio.Modules.Motion.ViewModels;
 using IndustrialAutomationStudio.Modules.Motion.ViewModels.Dialogs;
+using IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
 using IndustrialAutomationStudio.Modules.Motion.Views;
 using IndustrialAutomationStudio.Modules.Motion.Views.Dialogs;
 using Prism.Ioc;
@@ -28,10 +29,12 @@ public sealed class MotionModule : IModule
         containerRegistry.RegisterSingleton<IAxisConfigurationValidator, AxisConfigurationValidator>();
         containerRegistry.RegisterSingleton<IAxisConfigRepository, JsonAxisConfigRepository>();
         containerRegistry.RegisterSingleton<IAxisGroupConfigRepository, JsonAxisGroupConfigRepository>();
+        containerRegistry.RegisterSingleton<IPointPositionRepository, JsonPointPositionRepository>();
         containerRegistry.RegisterSingleton<IIoDisplayNameRepository, JsonIoDisplayNameRepository>();
         containerRegistry.RegisterSingleton<IMotionCardConfigRepository, JsonMotionCardConfigRepository>();
         containerRegistry.RegisterSingleton<IMotionLogService, InMemoryMotionLogService>();
         containerRegistry.RegisterSingleton<IMotionCardService, MotionCardService>();
+        containerRegistry.RegisterSingleton<IMotionExecutionService, MotionExecutionService>();
         containerRegistry.RegisterSingleton<IIoMonitorService, IoMonitorService>();
         containerRegistry.RegisterSingleton<IAxisConfigService, AxisConfigService>();
         containerRegistry.RegisterSingleton<IAxisGroupConfigService, AxisGroupConfigService>();
@@ -40,6 +43,7 @@ public sealed class MotionModule : IModule
         containerRegistry.RegisterSingleton<IConfigurationFileDialogService, WpfConfigurationFileDialogService>();
         containerRegistry.RegisterSingleton<IConfigurationPromptService, WpfConfigurationPromptService>();
         containerRegistry.RegisterSingleton<IMotionSafetyService, MotionSafetyService>();
+        containerRegistry.RegisterSingleton<JogModuleFactory>();
         containerRegistry.Register<AddAxisDialogViewModel>();
         containerRegistry.Register<AddAxisDialog>();
 
@@ -59,7 +63,7 @@ public sealed class MotionModule : IModule
             MotionNavigationNames.AxisDebug);
         containerRegistry.RegisterForNavigation<IoMonitorView, IoMonitorViewModel>(
             MotionNavigationNames.IoMonitor);
-        containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
+        containerRegistry.RegisterForNavigation<PointDebugView, PointDebugViewModel>(
             MotionNavigationNames.PointDebug);
         containerRegistry.RegisterForNavigation<MultiAxisMotionView, MultiAxisMotionViewModel>(
             MotionNavigationNames.MultiAxis);

@@ -29,6 +29,8 @@ public sealed class MotionCardService : IMotionCardService
     public bool IsConnected => _driver?.IsConnected == true;
     public bool CanWriteDigitalOutputs =>
         _driver is { IsConnected: true, CanWriteDigitalOutputs: true };
+    public bool CanControlMotion =>
+        _driver is { IsConnected: true, CanControlMotion: true };
     public IReadOnlyList<string> AvailableDriverKeys => _registry.DriverKeys;
     public event EventHandler<bool>? ConnectionChanged;
 
@@ -109,6 +111,62 @@ public sealed class MotionCardService : IMotionCardService
         CancellationToken cancellationToken = default) =>
         RequireDriver().WriteDigitalOutputAsync(index, value, cancellationToken);
 
+    public Task<IReadOnlyList<AxisPulseState>> ReadAxisStatesAsync(
+        IReadOnlyCollection<AxisAddress> addresses,
+        CancellationToken cancellationToken = default) =>
+        RequireDriver().ReadAxisStatesAsync(addresses, cancellationToken);
+
+    public Task StartJogAsync(
+        AxisAddress address,
+        double velocityPulsesPerSecond,
+        MotionProfile profile,
+        CancellationToken cancellationToken = default) =>
+        ExecuteMotionAsync(
+            "Jog",
+            $"轴 {address.CardNo}:{address.AxisNo}，速度 {velocityPulsesPerSecond:G}",
+            () => RequireDriver().StartJogAsync(
+                address,
+                velocityPulsesPerSecond,
+                profile,
+                cancellationToken));
+
+    public Task MoveAbsoluteAsync(
+        AxisPulseTarget target,
+        double velocityPulsesPerSecond,
+        MotionProfile profile,
+        CancellationToken cancellationToken = default) =>
+        ExecuteMotionAsync(
+            "绝对定位",
+            $"轴 {target.Address.CardNo}:{target.Address.AxisNo}，目标 {target.TargetPulses}",
+            () => RequireDriver().MoveAbsoluteAsync(
+                target,
+                velocityPulsesPerSecond,
+                profile,
+                cancellationToken));
+
+    public Task MoveSynchronizedAsync(
+        IReadOnlyList<AxisPulseTarget> targets,
+        double accelerationPulsesPerSecondSquared,
+        double velocityPulsesPerSecond,
+        CancellationToken cancellationToken = default) =>
+        ExecuteMotionAsync(
+            "同步定位",
+            $"{targets.Count} 轴，速度 {velocityPulsesPerSecond:G}",
+            () => RequireDriver().MoveSynchronizedAsync(
+                targets,
+                accelerationPulsesPerSecondSquared,
+                velocityPulsesPerSecond,
+                cancellationToken));
+
+    public Task StopAxesAsync(
+        IReadOnlyCollection<AxisAddress> addresses,
+        MotionStopMode mode,
+        CancellationToken cancellationToken = default) =>
+        ExecuteMotionAsync(
+            "停止",
+            $"{addresses.Count} 轴，模式 {mode}",
+            () => RequireDriver().StopAxesAsync(addresses, mode, cancellationToken));
+
     public async ValueTask DisposeAsync()
     {
         if (_disposed)
@@ -127,6 +185,23 @@ public sealed class MotionCardService : IMotionCardService
         return _driver is { IsConnected: true }
             ? _driver
             : throw new InvalidOperationException("运动控制卡尚未连接。");
+    }
+
+    private async Task ExecuteMotionAsync(
+        string operation,
+        string detail,
+        Func<Task> action)
+    {
+        try
+        {
+            await action().ConfigureAwait(false);
+            Log(MotionLogLevel.Information, operation, detail);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            Log(MotionLogLevel.Error, operation, detail, exception.Message);
+            throw;
+        }
     }
 
     private void Log(

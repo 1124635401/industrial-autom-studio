@@ -99,7 +99,10 @@ public sealed class MultiAxisJogLayoutPanel : Panel
     {
         if (index < InternalChildren.Count)
         {
-            InternalChildren[index].Arrange(bounds);
+            InternalChildren[index].Arrange(
+                bounds.IsEmpty
+                    ? new Rect(0, 0, 0, 0)
+                    : bounds);
         }
     }
 

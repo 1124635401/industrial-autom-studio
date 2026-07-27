@@ -389,115 +389,16 @@
                                 Background="{StaticResource MotionReferencePageBrush}"
                                 BorderBrush="{StaticResource MotionBorderBrush}"
                                 BorderThickness="1" CornerRadius="12">
-                            <StackPanel>
-                                <controls:MultiAxisJogLayoutPanel
-                                    HorizontalAlignment="Stretch"
-                                    AxisCount="{Binding SelectedAxisCount, Mode=OneWay}">
-                                    <Border Margin="4" Padding="0,0,10,0"
-                                            BorderBrush="{StaticResource MotionBorderBrush}"
-                                            BorderThickness="0,0,1,0">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasLinearModules}"
-                                                                 Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <ItemsControl x:Name="LinearAxisRegion"
-                                                      VerticalAlignment="Center"
-                                                      ItemsSource="{Binding LinearModules}"
-                                                      ItemTemplate="{StaticResource JogRegionModuleTemplate}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel HorizontalAlignment="Center" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                        </ItemsControl>
-                                    </Border>
-
-                                    <Border Margin="4" Padding="10,0">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasCenterModules}"
-                                                                 Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <ItemsControl x:Name="CenterAxisRegion"
-                                                      VerticalAlignment="Center"
-                                                      ItemsSource="{Binding CenterModules}"
-                                                      ItemTemplate="{StaticResource JogRegionModuleTemplate}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel HorizontalAlignment="Center" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                        </ItemsControl>
-                                    </Border>
-
-                                    <Border Margin="4" Padding="10,0,0,0"
-                                            BorderBrush="{StaticResource MotionBorderBrush}"
-                                            BorderThickness="1,0,0,0">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasRotaryModules}"
-                                                                 Value="True">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <ItemsControl x:Name="RotaryAxisRegion"
-                                                      VerticalAlignment="Center"
-                                                      ItemsSource="{Binding RotaryModules}"
-                                                      ItemTemplate="{StaticResource JogRegionModuleTemplate}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel HorizontalAlignment="Center" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                        </ItemsControl>
-                                    </Border>
-                                </controls:MultiAxisJogLayoutPanel>
-
-                                <Border x:Name="AuxiliaryAxisDock"
-                                        Margin="4,12,4,4" Padding="12,12,12,4"
-                                        Background="Transparent"
-                                        BorderBrush="{StaticResource MotionBorderBrush}"
-                                        BorderThickness="0,1,0,0">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasAuxiliaryModules}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <ItemsControl x:Name="AuxiliaryAxisRegion"
-                                                  VerticalAlignment="Center"
-                                                  ItemsSource="{Binding AuxiliaryModules}"
-                                                  ItemTemplate="{StaticResource JogRegionModuleTemplate}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel HorizontalAlignment="Center" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                    </ItemsControl>
-                                </Border>
-                            </StackPanel>
+                            <controls:JogControlSurface
+                                AxisCount="{Binding SelectedAxisCount, Mode=OneWay}"
+                                CenterModules="{Binding CenterModules}"
+                                LinearModules="{Binding LinearModules}"
+                                RotaryModules="{Binding RotaryModules}"
+                                AuxiliaryModules="{Binding AuxiliaryModules}"
+                                IsInteractionEnabled="{Binding IsNotBusy}"
+                                StartCommand="{Binding BeginPreviewCommand}"
+                                StopCommand="{Binding EndPreviewCommand}"
+                                Density="Standard" />
                         </Border>
                         </Grid>
                     </Border>
