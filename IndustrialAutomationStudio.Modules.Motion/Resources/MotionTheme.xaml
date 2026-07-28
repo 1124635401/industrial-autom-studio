@@ -2,15 +2,15 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                     xmlns:converters="clr-namespace:IndustrialAutomationStudio.Modules.Motion.Converters">
-    <Color x:Key="MotionColor.Background">#FFF7F9FC</Color>
+    <Color x:Key="MotionColor.Background">#FFF5F7FA</Color>
     <Color x:Key="MotionColor.Panel">#FFFFFFFF</Color>
     <Color x:Key="MotionColor.Navigation">#FFFBFCFE</Color>
-    <Color x:Key="MotionColor.Primary">#FF0B63E5</Color>
-    <Color x:Key="MotionColor.Success">#FF21A366</Color>
-    <Color x:Key="MotionColor.Warning">#FFF4A100</Color>
-    <Color x:Key="MotionColor.Danger">#FFD64545</Color>
-    <Color x:Key="MotionColor.Text">#FF172033</Color>
-    <Color x:Key="MotionColor.Muted">#FF667085</Color>
+    <Color x:Key="MotionColor.Primary">#FF1677FF</Color>
+    <Color x:Key="MotionColor.Success">#FF20B26B</Color>
+    <Color x:Key="MotionColor.Warning">#FFF5A623</Color>
+    <Color x:Key="MotionColor.Danger">#FFF04444</Color>
+    <Color x:Key="MotionColor.Text">#FF162033</Color>
+    <Color x:Key="MotionColor.Muted">#FF5E6B7D</Color>
 
     <SolidColorBrush x:Key="MotionBrush.Background" Color="{StaticResource MotionColor.Background}" />
     <SolidColorBrush x:Key="MotionBrush.Panel" Color="{StaticResource MotionColor.Panel}" />
@@ -22,14 +22,14 @@
     <SolidColorBrush x:Key="MotionBrush.Text" Color="{StaticResource MotionColor.Text}" />
     <SolidColorBrush x:Key="MotionBrush.Muted" Color="{StaticResource MotionColor.Muted}" />
 
-    <SolidColorBrush x:Key="MotionPrimaryLightBrush" Color="#FFEAF2FF" />
+    <SolidColorBrush x:Key="MotionPrimaryLightBrush" Color="#FFEAF3FF" />
     <SolidColorBrush x:Key="MotionPrimaryHoverBrush" Color="#FFDCEBFF" />
-    <SolidColorBrush x:Key="MotionPageBackgroundBrush" Color="#FFF7F9FC" />
+    <SolidColorBrush x:Key="MotionPageBackgroundBrush" Color="#FFF5F7FA" />
     <SolidColorBrush x:Key="MotionCardBackgroundBrush" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="MotionBorderBrush" Color="#FFDCE3ED" />
-    <SolidColorBrush x:Key="MotionTextPrimaryBrush" Color="#FF172033" />
-    <SolidColorBrush x:Key="MotionTextSecondaryBrush" Color="#FF667085" />
-    <SolidColorBrush x:Key="MotionDangerBrush" Color="#FFD64545" />
+    <SolidColorBrush x:Key="MotionBorderBrush" Color="#FFDDE3EC" />
+    <SolidColorBrush x:Key="MotionTextPrimaryBrush" Color="#FF162033" />
+    <SolidColorBrush x:Key="MotionTextSecondaryBrush" Color="#FF5E6B7D" />
+    <SolidColorBrush x:Key="MotionDangerBrush" Color="#FFF04444" />
     <SolidColorBrush x:Key="MotionDisabledBrush" Color="#FFF1F3F6" />
     <SolidColorBrush x:Key="MotionSuccessLightBrush" Color="#FFE9F8EE" />
     <SolidColorBrush x:Key="MotionDangerLightBrush" Color="#FFFDEBEC" />
@@ -48,19 +48,21 @@
     <!-- Host applications may override these density resources. -->
     <GridLength x:Key="MotionChromeHeight">54</GridLength>
     <GridLength x:Key="MotionNavigationWidth">198</GridLength>
-    <GridLength x:Key="MotionStatusBarHeight">44</GridLength>
+    <GridLength x:Key="MotionStatusBarHeight">30</GridLength>
     <sys:Double x:Key="MotionAxisToolbarButtonHeight">36</sys:Double>
     <sys:Double x:Key="MotionAxisActionButtonHeight">36</sys:Double>
     <sys:Double x:Key="MotionAxisInputHeight">36</sys:Double>
     <sys:Double x:Key="MotionAxisParameterMinWidth">840</sys:Double>
     <sys:Double x:Key="MotionAxisParameterMinHeight">580</sys:Double>
     <GridLength x:Key="MotionAxisTableHeight">220</GridLength>
-    <GridLength x:Key="MotionAxisHeaderHeight">72</GridLength>
+    <GridLength x:Key="MotionAxisHeaderHeight">60</GridLength>
     <GridLength x:Key="MotionAxisCardHeaderHeight">50</GridLength>
     <GridLength x:Key="MotionAxisListWidth">280</GridLength>
     <GridLength x:Key="MotionAxisStatusHeight">48</GridLength>
+    <Visibility x:Key="MotionPageHeaderVisibility">Visible</Visibility>
 
     <converters:EqualityConverter x:Key="MotionEqualityConverter" />
+    <converters:ResourceKeyToGeometryConverter x:Key="MotionResourceKeyToGeometryConverter" />
 
     <Geometry x:Key="MotionIcon.Cube">M2,6 L12,1 22,6 12,11 Z M2,7 L11,12 11,23 2,18 Z M22,7 L13,12 13,23 22,18 Z</Geometry>
     <Geometry x:Key="MotionIcon.Folder">M2,5 L9,5 11,8 22,8 22,20 2,20 Z</Geometry>
@@ -90,7 +92,7 @@
     <Geometry x:Key="MotionIcon.Next">M9,4 L17,12 9,20</Geometry>
 
     <Style x:Key="MotionPageTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="27" />
+        <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{StaticResource MotionBrush.Text}" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -149,6 +151,59 @@
         </Setter>
     </Style>
 
+    <Style x:Key="MotionWorkspaceTopNavigationStyle" TargetType="ToggleButton">
+        <Setter Property="Height" Value="48" />
+        <Setter Property="MinWidth" Value="94" />
+        <Setter Property="Padding" Value="13,0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource MotionTextSecondaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Border x:Name="Chrome"
+                                Margin="2,4"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <Border x:Name="ActiveLine"
+                                Width="30"
+                                Height="2"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom"
+                                Background="{StaticResource MotionBrush.Primary}"
+                                Visibility="Collapsed" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{StaticResource MotionPrimaryLightBrush}" />
+                            <Setter Property="Foreground"
+                                    Value="{StaticResource MotionBrush.Primary}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Chrome"
+                                    Property="Background"
+                                    Value="{StaticResource MotionPrimaryLightBrush}" />
+                            <Setter TargetName="ActiveLine"
+                                    Property="Visibility"
+                                    Value="Visible" />
+                            <Setter Property="Foreground"
+                                    Value="{StaticResource MotionBrush.Primary}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="MotionMetricCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource MotionCardBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource MotionBorderBrush}" />
@@ -182,7 +237,7 @@
                     <Border x:Name="Chrome" Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            CornerRadius="6" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
@@ -228,8 +283,8 @@
         <Setter Property="GridLinesVisibility" Value="Horizontal" />
         <Setter Property="HorizontalGridLinesBrush" Value="#FFE7ECF2" />
         <Setter Property="HeadersVisibility" Value="Column" />
-        <Setter Property="RowHeight" Value="46" />
-        <Setter Property="ColumnHeaderHeight" Value="42" />
+        <Setter Property="RowHeight" Value="40" />
+        <Setter Property="ColumnHeaderHeight" Value="40" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="RowBackground" Value="White" />
         <Setter Property="AlternatingRowBackground" Value="#FFFCFDFE" />

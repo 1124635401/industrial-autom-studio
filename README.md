@@ -18,7 +18,14 @@ Prism 9 使用社区或商业许可证，使用者需要自行确认并遵守当
 ```text
 IndustrialAutomationStudio.slnx
 ├─ IndustrialAutomationStudio.App
+├─ IndustrialAutomationStudio.Shell.Contracts
+├─ IndustrialAutomationStudio.Modules.Workbench
 ├─ IndustrialAutomationStudio.Modules.Motion
+├─ IndustrialAutomationStudio.Modules.Communication
+├─ IndustrialAutomationStudio.Modules.Workflow
+├─ IndustrialAutomationStudio.Modules.Diagnostics
+├─ IndustrialAutomationStudio.Modules.Settings
+├─ IndustrialAutomationStudio.Shell.Tests
 └─ IndustrialAutomationStudio.Modules.Motion.Tests
 ```
 
@@ -39,6 +46,22 @@ dotnet build IndustrialAutomationStudio.slnx --no-restore -m:1
 ```powershell
 dotnet run --project IndustrialAutomationStudio.App/IndustrialAutomationStudio.App.csproj
 ```
+
+## 模块化 Shell
+
+桌面宿主使用顶部一级模块导航、分组式二级菜单、统一页面标题区、主内容 Region 和底部状态栏。导航结构由各模块提供，Shell 不硬编码具体功能页。
+
+导航契约位于 `IndustrialAutomationStudio.Shell.Contracts`：
+
+- `NavigationModule` 定义一级模块、显示位置和默认页面。
+- `NavigationGroup` 定义二级菜单分组。
+- `NavigationItem` 定义页面标题、说明、图标、导航 URI 和开发状态。
+- `INavigationContributor` 由功能模块实现。
+- `INavigationRegistry` 在 App 组合根中校验并汇总所有模块。
+
+工作台当前只提供页面结构和快捷入口。控制卡、轴、IO、通讯、报警、流程与系统资源数据统一显示“开发中/未接入”，不会使用模拟数值。
+
+通讯调试、流程编排、未实现诊断功能和系统设置使用统一占位页；运动日志继续打开现有实际页面。
 
 默认配置目录：
 
@@ -95,7 +118,9 @@ regionManager.RequestNavigate(
     MotionNavigationNames.Workspace);
 ```
 
-也可直接导航到 `MotionNavigationNames.AxisConfig`，复用同一套配置逻辑、主题、对话框和调试 UI。
+完整工作区使用模块自己的紧凑顶部导航、标题区、内容 Region 和本地状态栏，不依赖平台 `ShellWindow`。
+
+也可直接导航到 `MotionNavigationNames.Connection`、`AxisConfig`、`GroupManagement`、`IoMonitor`、`PointDebug`、`MultiAxis` 或 `Log`，复用同一套业务逻辑、主题、对话框和调试 UI。外部宿主可以自行提供页面标题和导航外壳。
 
 ## 新增 Driver
 

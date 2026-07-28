@@ -9,6 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\IndustrialAutomationStudio.Shell.Contracts\IndustrialAutomationStudio.Shell.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Defaults\*.json" />
   </ItemGroup>
 

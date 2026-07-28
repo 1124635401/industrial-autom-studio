@@ -292,7 +292,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Margin="0,0,0,16">
+        <Grid Margin="0,0,0,16"
+              Visibility="{DynamicResource MotionPageHeaderVisibility}">
             <StackPanel>
                 <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="多轴运动" />
                 <TextBlock Margin="0,7,0,0" FontSize="13"

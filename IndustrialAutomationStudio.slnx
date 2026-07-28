@@ -2,10 +2,15 @@
   <Folder Name="/Applications/">
     <Project Path="IndustrialAutomationStudio.App/IndustrialAutomationStudio.App.csproj" />
   </Folder>
-  <Folder Name="/Modules/">
-    <Project Path="IndustrialAutomationStudio.Modules.Motion/IndustrialAutomationStudio.Modules.Motion.csproj" />
+  <Folder Name="/Infrastructure/">
+    <Project Path="IndustrialAutomationStudio.Shell.Contracts/IndustrialAutomationStudio.Shell.Contracts.csproj" />
   </Folder>
-  <Folder Name="/Tests/">
-    <Project Path="IndustrialAutomationStudio.Modules.Motion.Tests/IndustrialAutomationStudio.Modules.Motion.Tests.csproj" />
+  <Folder Name="/Modules/">
+    <Project Path="IndustrialAutomationStudio.Modules.Communication/IndustrialAutomationStudio.Modules.Communication.csproj" />
+    <Project Path="IndustrialAutomationStudio.Modules.Diagnostics/IndustrialAutomationStudio.Modules.Diagnostics.csproj" />
+    <Project Path="IndustrialAutomationStudio.Modules.Motion/IndustrialAutomationStudio.Modules.Motion.csproj" />
+    <Project Path="IndustrialAutomationStudio.Modules.Settings/IndustrialAutomationStudio.Modules.Settings.csproj" />
+    <Project Path="IndustrialAutomationStudio.Modules.Workbench/IndustrialAutomationStudio.Modules.Workbench.csproj" />
+    <Project Path="IndustrialAutomationStudio.Modules.Workflow/IndustrialAutomationStudio.Modules.Workflow.csproj" />
   </Folder>
 </Solution>

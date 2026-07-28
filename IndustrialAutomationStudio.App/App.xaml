@@ -5,9 +5,11 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/IndustrialAutomationStudio.App;component/Resources/ShellTheme.xaml" />
                 <!-- Make module resources available to the XAML designer before Prism initializes modules. -->
                 <ResourceDictionary Source="/IndustrialAutomationStudio.Modules.Motion;component/Resources/MotionTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Visibility x:Key="MotionPageHeaderVisibility">Collapsed</Visibility>
         </ResourceDictionary>
     </Application.Resources>
 </prism:PrismApplication>

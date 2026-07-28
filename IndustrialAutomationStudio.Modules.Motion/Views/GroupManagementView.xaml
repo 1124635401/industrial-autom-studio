@@ -135,7 +135,7 @@
         </Grid.RowDefinitions>
 
         <Grid>
-            <StackPanel>
+            <StackPanel Visibility="{DynamicResource MotionPageHeaderVisibility}">
                 <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="分组管理" />
                 <TextBlock Margin="0,5,0,0" FontSize="14"
                            Foreground="{StaticResource MotionTextSecondaryBrush}"

@@ -1,7 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\IndustrialAutomationStudio.Modules.Communication\IndustrialAutomationStudio.Modules.Communication.csproj" />
+    <ProjectReference Include="..\IndustrialAutomationStudio.Modules.Diagnostics\IndustrialAutomationStudio.Modules.Diagnostics.csproj" />
     <ProjectReference Include="..\IndustrialAutomationStudio.Modules.Motion\IndustrialAutomationStudio.Modules.Motion.csproj" />
+    <ProjectReference Include="..\IndustrialAutomationStudio.Modules.Settings\IndustrialAutomationStudio.Modules.Settings.csproj" />
+    <ProjectReference Include="..\IndustrialAutomationStudio.Modules.Workbench\IndustrialAutomationStudio.Modules.Workbench.csproj" />
+    <ProjectReference Include="..\IndustrialAutomationStudio.Modules.Workflow\IndustrialAutomationStudio.Modules.Workflow.csproj" />
+    <ProjectReference Include="..\IndustrialAutomationStudio.Shell.Contracts\IndustrialAutomationStudio.Shell.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

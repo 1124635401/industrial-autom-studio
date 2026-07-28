@@ -10,7 +10,8 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="0,0,0,22">
+        <StackPanel Margin="0,0,0,22"
+                    Visibility="{DynamicResource MotionPageHeaderVisibility}">
             <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="运动日志" />
             <TextBlock Margin="0,7,0,0" FontSize="13" Foreground="{StaticResource MotionTextSecondaryBrush}"
                        Text="查看运动控制模块的运行记录与操作结果。" />

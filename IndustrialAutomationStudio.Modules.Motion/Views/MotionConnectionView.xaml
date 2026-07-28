@@ -137,7 +137,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <StackPanel>
+                <StackPanel Visibility="{DynamicResource MotionPageHeaderVisibility}">
                     <TextBlock Style="{StaticResource MotionPageTitleStyle}"
                                Text="控制卡连接" />
                     <TextBlock Margin="0,7,0,0"

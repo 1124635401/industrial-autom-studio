@@ -16,7 +16,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel>
+            <StackPanel Visibility="{DynamicResource MotionPageHeaderVisibility}">
                 <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="IO 监控" />
                 <TextBlock Margin="0,7,0,0" FontSize="13"
                            Foreground="{StaticResource MotionTextSecondaryBrush}"

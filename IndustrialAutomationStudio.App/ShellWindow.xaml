@@ -13,104 +13,373 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
-        Background="{StaticResource MotionBrush.Background}"
-        SnapsToDevicePixels="True">
+        FontFamily="Microsoft YaHei UI, Segoe UI, Microsoft YaHei"
+        FontSize="13"
+        Foreground="{StaticResource ShellBrush.PrimaryText}"
+        Background="{StaticResource ShellBrush.Page}"
+        SnapsToDevicePixels="True"
+        SizeChanged="Shell_OnSizeChanged"
+        StateChanged="Shell_OnStateChanged"
+        PreviewMouseDown="Shell_OnPreviewMouseDown"
+        PreviewKeyDown="Shell_OnPreviewKeyDown">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0"
                             ResizeBorderThickness="6"
-                            CornerRadius="0"
+                            CornerRadius="8"
                             GlassFrameThickness="0"
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
-        <Style x:Key="ShellCaptionButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="54" />
-            <Setter Property="Height" Value="54" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="#FF273142" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Chrome" Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#FFEAF0F7" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="#FFDCE5F0" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="ShellCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource ShellCaptionButtonStyle}">
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFE5484D" />
-                    <Setter Property="Foreground" Value="White" />
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#FFC7373C" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <DataTemplate x:Key="PrimaryModuleTemplate">
+            <Grid MouseEnter="Module_OnMouseEnter"
+                  MouseLeave="Module_OnMouseLeave">
+                <Button x:Name="ModuleButton"
+                        Style="{StaticResource ShellTopNavigationButtonStyle}"
+                        AutomationProperties.Name="{Binding Title}"
+                        Command="{Binding DataContext.ActivateModuleCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{Binding}"
+                        Content="{Binding}"
+                        ContentTemplate="{StaticResource ShellTopNavigationContentTemplate}" />
+
+                <Popup IsOpen="{Binding IsMenuOpen, Mode=OneWay}"
+                       PlacementTarget="{Binding ElementName=ModuleButton}"
+                       Placement="Bottom"
+                       VerticalOffset="1"
+                       AllowsTransparency="True"
+                       StaysOpen="True"
+                       MouseEnter="MenuPopup_OnMouseEnter"
+                       MouseLeave="MenuPopup_OnMouseLeave">
+                    <Border Style="{StaticResource CompactShellMenuPopupStyle}">
+                        <ItemsControl AlternationCount="1000"
+                                      ItemsSource="{Binding Groups}"
+                                      ItemTemplate="{StaticResource CompactShellMenuGroupTemplate}" />
+                    </Border>
+                </Popup>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="UtilityModuleTemplate">
+            <Grid MouseEnter="Module_OnMouseEnter"
+                  MouseLeave="Module_OnMouseLeave">
+                <Button x:Name="UtilityButton"
+                        ToolTip="{Binding Title}"
+                        Style="{StaticResource ShellIconButtonStyle}"
+                        AutomationProperties.Name="{Binding Title}"
+                        Command="{Binding DataContext.ActivateModuleCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                        CommandParameter="{Binding}">
+                    <Path Width="19"
+                          Height="19"
+                          Stretch="Uniform"
+                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="1.45"
+                          Data="{Binding IconKey, Converter={StaticResource ShellResourceKeyToGeometryConverter}}" />
+                </Button>
+                <Popup IsOpen="{Binding IsMenuOpen, Mode=OneWay}"
+                       PlacementTarget="{Binding ElementName=UtilityButton}"
+                       Placement="Bottom"
+                       HorizontalOffset="-176"
+                       VerticalOffset="1"
+                       AllowsTransparency="True"
+                       StaysOpen="True"
+                       MouseEnter="MenuPopup_OnMouseEnter"
+                       MouseLeave="MenuPopup_OnMouseLeave">
+                    <Border Style="{StaticResource CompactShellMenuPopupStyle}">
+                        <ItemsControl AlternationCount="1000"
+                                      ItemsSource="{Binding Groups}"
+                                      ItemTemplate="{StaticResource CompactShellMenuGroupTemplate}" />
+                    </Border>
+                </Popup>
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
-    <Border BorderBrush="#FFC9D6E6" BorderThickness="1" Background="{StaticResource MotionBrush.Background}">
+    <Border x:Name="WindowFrame"
+            Background="{StaticResource ShellBrush.Page}"
+            BorderBrush="{StaticResource ShellBrush.Border}"
+            BorderThickness="1"
+            CornerRadius="8">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="{DynamicResource MotionChromeHeight}" />
+                <RowDefinition Height="64" />
+                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="30" />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Background="#FFF9FBFD" BorderBrush="{StaticResource MotionBorderBrush}"
-                    BorderThickness="0,0,0,1" MouseLeftButtonDown="TitleBar_OnMouseLeftButtonDown">
+            <Border Grid.Row="0"
+                    Background="{StaticResource ShellBrush.TitleBar}"
+                    BorderBrush="{StaticResource ShellBrush.TitleBarBorder}"
+                    BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel x:Name="ProductIdentity"
+                                Grid.Column="0"
+                                Margin="20,0,28,0"
+                                Orientation="Horizontal"
+                                 VerticalAlignment="Center"
+                                 MouseLeftButtonDown="TitleBar_OnMouseLeftButtonDown">
+                        <Border Width="36"
+                                Height="36"
+                                Background="{StaticResource ShellBrush.TitleBarLogoBackground}"
+                                CornerRadius="8">
+                            <Path Width="20"
+                                  Height="20"
+                                  Stretch="Uniform"
+                                  Stroke="{StaticResource ShellBrush.Primary}"
+                                  StrokeLineJoin="Round"
+                                  StrokeThickness="1.8"
+                                  Data="M12,2 L21,7 21,17 12,22 3,17 3,7 Z M3,7 L12,12 21,7 M12,12 L12,22 M7.5,4.5 L16.5,9.5" />
+                        </Border>
+                        <TextBlock x:Name="ProductName"
+                                   Margin="12,0,0,0"
+                                   VerticalAlignment="Center"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Text="自动化调试平台" />
+                    </StackPanel>
+
+                    <ItemsControl Grid.Column="1"
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{Binding PrimaryModules}"
+                                  ItemTemplate="{StaticResource PrimaryModuleTemplate}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <Grid Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border x:Name="GlobalConnectionStatus"
+                                Grid.Column="0"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource ShellConnectionStatusStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="7"
+                                         Height="7"
+                                         Fill="{StaticResource ShellBrush.DisconnectedDot}" />
+                                <TextBlock Margin="7,0,0,0"
+                                           Foreground="{StaticResource ShellBrush.DisconnectedText}"
+                                           Text="未接入" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                Style="{StaticResource ShellHeaderDividerStyle}" />
+
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <Button x:Name="SupportHelpAction"
+                                    ToolTip="帮助"
+                                    Style="{StaticResource ShellIconButtonStyle}">
+                                <Path Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.45"
+                                      Data="{StaticResource ShellIcon.Help}" />
+                            </Button>
+                            <ItemsControl VerticalAlignment="Center"
+                                          ItemsSource="{Binding UtilityModules}"
+                                          ItemTemplate="{StaticResource UtilityModuleTemplate}" />
+                            <Button x:Name="SupportNotificationAction"
+                                    ToolTip="通知"
+                                    Style="{StaticResource ShellIconButtonStyle}">
+                                <Path Width="18"
+                                      Height="18"
+                                      Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.45"
+                                      Data="{StaticResource ShellIcon.Notification}" />
+                            </Button>
+                        </StackPanel>
+
+                        <Border Grid.Column="3"
+                                Style="{StaticResource ShellHeaderDividerStyle}" />
+
+                        <StackPanel x:Name="UserIdentity"
+                                    Grid.Column="4"
+                                    Margin="4,0,12,0"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock x:Name="UserName"
+                                       VerticalAlignment="Center"
+                                       FontSize="14"
+                                       Foreground="{StaticResource ShellBrush.TopNavForeground}"
+                                       Text="admin" />
+                            <Path x:Name="UserMenuChevron"
+                                  Width="10"
+                                  Height="6"
+                                  Margin="7,1,0,0"
+                                  VerticalAlignment="Center"
+                                  Stretch="Uniform"
+                                  Stroke="{StaticResource ShellBrush.SecondaryText}"
+                                  StrokeThickness="1.4"
+                                  Data="{StaticResource ShellIcon.ChevronDown}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="5" Orientation="Horizontal">
+                            <Button Style="{StaticResource ShellCaptionButtonStyle}"
+                                    Click="Minimize_OnClick"
+                                    AutomationProperties.Name="最小化">
+                                <Path Width="12"
+                                      Height="1"
+                                      Stretch="Fill"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.3"
+                                      Data="M0,0 L12,0" />
+                            </Button>
+                            <Button Style="{StaticResource ShellCaptionButtonStyle}"
+                                    Click="Maximize_OnClick"
+                                    AutomationProperties.Name="最大化或还原">
+                                <Path Width="12"
+                                      Height="12"
+                                      Stretch="Fill"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.2"
+                                      Data="M1,1 L11,1 11,11 1,11 Z" />
+                            </Button>
+                            <Button Style="{StaticResource ShellCloseButtonStyle}"
+                                    Click="Close_OnClick"
+                                    AutomationProperties.Name="关闭">
+                                <Path Width="12"
+                                      Height="12"
+                                      Stretch="Fill"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.3"
+                                      Data="M1,1 L11,11 M11,1 L1,11" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Padding="22,8"
+                    Background="{StaticResource ShellBrush.Card}"
+                    BorderBrush="{StaticResource ShellBrush.Border}"
+                    BorderThickness="0,0,0,1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Margin="20,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Grid Width="30" Height="30">
-                            <Polygon Fill="{StaticResource MotionBrush.Primary}"
-                                     Points="15,0 29,8 29,22 15,30 1,22 1,8" />
-                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       FontSize="10" FontWeight="Bold" Foreground="White" Text="IA" />
-                        </Grid>
-                        <TextBlock Margin="12,0,0,0" VerticalAlignment="Center" FontSize="16"
-                                   Foreground="{StaticResource MotionTextPrimaryBrush}"
-                                   Text="Industrial Automation Studio 工业自动化调试平台" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock FontSize="11"
+                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                   Text="{Binding Breadcrumb}" />
+                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                            <TextBlock FontSize="22"
+                                       FontWeight="SemiBold"
+                                       Text="{Binding PageTitle}" />
+                            <TextBlock Margin="14,6,0,0"
+                                       VerticalAlignment="Top"
+                                       FontSize="12"
+                                       Foreground="{StaticResource ShellBrush.SecondaryText}"
+                                       Text="{Binding PageDescription}" />
+                        </StackPanel>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Style="{StaticResource ShellCaptionButtonStyle}" Click="Minimize_OnClick"
-                                AutomationProperties.Name="最小化">
-                            <Path Width="13" Height="1" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.4" Data="M0,0 L13,0" />
-                        </Button>
-                        <Button Style="{StaticResource ShellCaptionButtonStyle}" Click="Maximize_OnClick"
-                                AutomationProperties.Name="最大化或还原">
-                            <Path Width="13" Height="13" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.25" Data="M1,1 L12,1 12,12 1,12 Z" />
-                        </Button>
-                        <Button Style="{StaticResource ShellCloseButtonStyle}" Click="Close_OnClick"
-                                AutomationProperties.Name="关闭">
-                            <Path Width="13" Height="13" Stretch="Fill" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                  StrokeThickness="1.3" Data="M1,1 L12,12 M12,1 L1,12" />
-                        </Button>
-                    </StackPanel>
+                    <Border Grid.Column="1"
+                            Padding="12,7"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource ShellBrush.ErrorLight}"
+                            CornerRadius="4">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Foreground="{StaticResource ShellBrush.Error}"
+                                   Text="{Binding ErrorMessage}" />
+                    </Border>
                 </Grid>
             </Border>
 
-            <ContentControl Grid.Row="1" prism:RegionManager.RegionName="MainContentRegion" />
+            <Grid Grid.Row="2" Background="{StaticResource ShellBrush.Page}">
+                <ContentControl Margin="22,18,22,18"
+                                prism:RegionManager.RegionName="MainContentRegion" />
+                <ContentControl Panel.ZIndex="10"
+                                IsHitTestVisible="False"
+                                prism:RegionManager.RegionName="OverlayRegion" />
+            </Grid>
+
+            <Border Grid.Row="3"
+                    Background="{StaticResource ShellBrush.TopBar}"
+                    BorderBrush="{StaticResource ShellBrush.Border}"
+                    BorderThickness="0,1,0,0">
+                <Grid Margin="22,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center"
+                               FontSize="11"
+                               Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                               Text="{Binding SystemTimeText}" />
+                    <Border Grid.Column="1"
+                            Width="1"
+                            Height="14"
+                            HorizontalAlignment="Center"
+                            Background="{StaticResource ShellBrush.Border}" />
+                    <TextBlock Grid.Column="2"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                               Text="{Binding RuntimeText}" />
+                    <Border Grid.Column="3"
+                            Width="1"
+                            Height="14"
+                            HorizontalAlignment="Center"
+                            Background="{StaticResource ShellBrush.Border}" />
+                    <TextBlock Grid.Column="4"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                               Text="当前用户：admin" />
+                    <StackPanel Grid.Column="6"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Ellipse Width="7"
+                                 Height="7"
+                                 Fill="{StaticResource ShellBrush.Success}" />
+                        <TextBlock Margin="7,0,0,0"
+                                   FontSize="11"
+                                   Foreground="{StaticResource ShellBrush.SecondaryText}"
+                                   Text="{Binding StatusText}" />
+                        <TextBlock Margin="14,0,0,0"
+                                   FontSize="11"
+                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                   Text="{Binding VersionText}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
     </Border>
 </Window>
