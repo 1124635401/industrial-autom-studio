@@ -6,8 +6,8 @@
              Background="Transparent">
     <UserControl.Resources>
         <Style x:Key="GroupManagementGroupItemStyle" TargetType="ListBoxItem">
-            <Setter Property="Height" Value="58" />
-            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Height" Value="54" />
+            <Setter Property="Margin" Value="0,0,0,8" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -15,7 +15,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
                         <Border x:Name="ItemBorder"
-                                Padding="16,0"
+                                Padding="12,0"
                                 Background="White"
                                 BorderBrush="{StaticResource MotionBorderBrush}"
                                 BorderThickness="1"
@@ -119,330 +119,512 @@
         <Style x:Key="GroupManagementTransferButtonStyle"
                TargetType="Button"
                BasedOn="{StaticResource MotionSecondaryButton}">
-            <Setter Property="Width" Value="52" />
-            <Setter Property="Height" Value="40" />
-            <Setter Property="Margin" Value="0,0,0,12" />
-            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Width" Value="42" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="16" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer HorizontalContentAlignment="Stretch"
+                  VerticalContentAlignment="Stretch"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Disabled">
+        <Border x:Name="MainCard"
+                Margin="32"
+                Padding="0"
+                MinWidth="1050"
+                Style="{StaticResource MotionWorkspaceCardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="64" />
+                    <RowDefinition Height="56" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="54" />
+                </Grid.RowDefinitions>
 
-        <Grid>
-            <StackPanel Visibility="{DynamicResource MotionPageHeaderVisibility}">
-                <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="分组管理" />
-                <TextBlock Margin="0,5,0,0" FontSize="14"
-                           Foreground="{StaticResource MotionTextSecondaryBrush}"
-                           Text="创建并管理检测分组及其关联轴" />
-            </StackPanel>
-            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                        Orientation="Horizontal">
-                <TextBlock MaxWidth="420" Margin="0,0,10,0"
-                           VerticalAlignment="Center" TextAlignment="Right" TextWrapping="Wrap"
-                           Foreground="{StaticResource MotionTextSecondaryBrush}"
-                           Text="{Binding StatusMessage}" />
-                <Button Height="34" Padding="14,0"
-                        Command="{Binding LoadCommand}" Content="重试">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MotionSecondaryButton}">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding HasLoadError}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </StackPanel>
-        </Grid>
+                <Border Background="White"
+                        BorderBrush="#FFF0F0F0"
+                        BorderThickness="0,0,0,1"
+                        CornerRadius="11,11,0,0">
+                    <Grid Margin="20,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="2"
-                      HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Disabled">
-            <Grid MinWidth="1050">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="300" MinWidth="240" />
-                    <ColumnDefinition Width="16" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" Style="{StaticResource MotionCardStyle}">
-                    <Grid Margin="16">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="14" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Grid>
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                             <TextBlock VerticalAlignment="Center"
-                                       Style="{StaticResource MotionCardTitleStyle}"
-                                       Text="分组列表" />
-                            <Button HorizontalAlignment="Right"
-                                    Height="36" Padding="13,0"
-                                    Style="{StaticResource MotionSecondaryButton}"
-                                    Command="{Binding NewGroupCommand}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Margin="0,0,6,0" FontSize="20" Text="+" />
-                                    <TextBlock VerticalAlignment="Center" Text="新建分组" />
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                        <Grid Grid.Row="2">
-                            <ListBox ItemsSource="{Binding Groups}"
-                                     SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
-                                     IsEnabled="{Binding IsNotBusy}"
-                                     ItemContainerStyle="{StaticResource GroupManagementGroupItemStyle}"
-                                     Background="Transparent" BorderThickness="0"
-                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                     ScrollViewer.VerticalScrollBarVisibility="Auto">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock VerticalAlignment="Center" FontSize="14"
-                                                       FontWeight="SemiBold"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Text="{Binding Name}" />
-                                            <Border Grid.Column="1" Padding="10,4" Margin="10,0,0,0"
-                                                    VerticalAlignment="Center"
-                                                    Background="{StaticResource MotionReferencePageBrush}"
-                                                    BorderBrush="{StaticResource MotionBorderBrush}"
-                                                    BorderThickness="1" CornerRadius="5">
-                                                <TextBlock FontSize="12"
-                                                           Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                                           Text="{Binding AxisCount, StringFormat={}{0}轴}" />
-                                            </Border>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                        IsHitTestVisible="False">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Groups.Count}" Value="0">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-                                <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="SemiBold"
-                                           Text="尚未创建分组" />
-                                <TextBlock Margin="0,8,0,0" Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                           Text="点击“新建分组”开始配置。" />
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-                </Border>
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource MotionTextPrimaryBrush}"
+                                       Text="分组配置" />
+                            <Border Margin="12,0,0,0"
+                                    Padding="9,4"
+                                    VerticalAlignment="Center"
+                                    Background="{StaticResource MotionPrimaryLightBrush}"
+                                    CornerRadius="12">
+                                <TextBlock FontSize="12"
+                                           Foreground="{StaticResource MotionBrush.Primary}"
+                                           Text="{Binding Groups.Count, StringFormat={}{0} 个分组}" />
+                            </Border>
+                        </StackPanel>
 
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="14" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-
-                    <Border Style="{StaticResource MotionCardStyle}" MinHeight="78">
-                        <Grid Margin="18,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="310" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="12" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock VerticalAlignment="Center" Margin="0,0,14,0"
-                                       Style="{StaticResource MotionFieldLabelStyle}"
-                                       Text="分组名称" />
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBox Height="38" MaxLength="50"
-                                         Style="{StaticResource MotionInputStyle}"
-                                         IsEnabled="{Binding IsEditorEnabled}"
-                                         Text="{Binding EditingGroupName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Margin="2,4,0,0" FontSize="12"
-                                           Foreground="{StaticResource MotionDangerBrush}"
-                                           Text="{Binding ValidationMessage}" />
-                            </StackPanel>
-                            <Button Grid.Column="3" Width="102" Height="40"
-                                    Style="{StaticResource MotionPrimaryButton}"
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                            <Button Style="{StaticResource MotionPrimaryButton}"
                                     Command="{Binding SaveGroupCommand}"
-                                    Content="保存" />
-                            <Button Grid.Column="5" Width="112" Height="40"
+                                    Content="保存配置" />
+                            <Button Margin="0"
                                     Style="{StaticResource MotionDangerOutlineButton}"
                                     Command="{Binding DeleteGroupCommand}"
                                     Content="删除分组" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Background="#FFFAFAFA"
+                        BorderBrush="#FFF0F0F0"
+                        BorderThickness="0,0,0,1">
+                    <Grid Margin="20,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="280" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="16" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Margin="0,0,12,0"
+                                   VerticalAlignment="Center"
+                                   Style="{StaticResource MotionFieldLabelStyle}"
+                                   Text="当前分组" />
+                        <TextBox Grid.Column="1"
+                                 Height="36"
+                                 MaxLength="50"
+                                 Style="{StaticResource MotionInputStyle}"
+                                 IsEnabled="{Binding IsEditorEnabled}"
+                                 Text="{Binding EditingGroupName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Grid.Column="2"
+                                   Margin="14,0"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="{StaticResource MotionDangerBrush}"
+                                   Text="{Binding ValidationMessage}"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="3"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                   Text="修改后需保存">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDirty}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Border Grid.Column="5"
+                                Padding="9,4"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource MotionPrimaryLightBrush}"
+                                CornerRadius="12">
+                            <TextBlock FontSize="12"
+                                       Foreground="{StaticResource MotionBrush.Primary}"
+                                       Text="{Binding AssignedAxisCount, StringFormat={}{0} 轴}" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="2" Margin="20,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" MinWidth="280" />
+                        <ColumnDefinition Width="68" />
+                        <ColumnDefinition Width="*" MinWidth="280" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Padding="0,0,16,0"
+                            BorderBrush="{StaticResource MotionBorderBrush}"
+                            BorderThickness="0,0,1,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="36" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <Grid>
+                                <TextBlock VerticalAlignment="Center"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Text="分组列表" />
+                                <Button x:Name="GroupListAddButton"
+                                        MinWidth="36"
+                                        Width="36"
+                                        Height="36"
+                                        Padding="0"
+                                        HorizontalAlignment="Right"
+                                        Style="{StaticResource MotionSecondaryButton}"
+                                        ToolTip="新建分组"
+                                        Command="{Binding NewGroupCommand}">
+                                    <Path Width="15"
+                                          Height="15"
+                                          Stretch="Uniform"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="1.8"
+                                          Data="{StaticResource MotionIcon.Add}" />
+                                </Button>
+                            </Grid>
+
+                            <Grid Grid.Row="2">
+                                <ListBox ItemsSource="{Binding Groups}"
+                                         SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
+                                         IsEnabled="{Binding IsNotBusy}"
+                                         ItemContainerStyle="{StaticResource GroupManagementGroupItemStyle}"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="32" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="28"
+                                                        Height="28"
+                                                        VerticalAlignment="Center"
+                                                        Background="{StaticResource MotionReferencePageBrush}"
+                                                        CornerRadius="6">
+                                                    <Path Width="14"
+                                                          Height="14"
+                                                          Stretch="Uniform"
+                                                          Stroke="{StaticResource MotionBrush.Primary}"
+                                                          StrokeThickness="1.45"
+                                                          Data="{StaticResource MotionIcon.Group}" />
+                                                </Border>
+                                                <TextBlock Grid.Column="1"
+                                                           Margin="8,0,6,0"
+                                                           VerticalAlignment="Center"
+                                                           FontSize="14"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Text="{Binding Name}" />
+                                                <Border Grid.Column="2"
+                                                        Padding="8,3"
+                                                        VerticalAlignment="Center"
+                                                        Background="{StaticResource MotionReferencePageBrush}"
+                                                        CornerRadius="10">
+                                                    <TextBlock FontSize="11"
+                                                               Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                                               Text="{Binding AxisCount, StringFormat={}{0}轴}" />
+                                                </Border>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <StackPanel HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            IsHitTestVisible="False">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Groups.Count}" Value="0">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock HorizontalAlignment="Center"
+                                               FontSize="15"
+                                               FontWeight="SemiBold"
+                                               Text="尚未创建分组" />
+                                    <TextBlock Margin="0,8,0,0"
+                                               Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                               Text="点击右上角“+”开始配置。" />
+                                </StackPanel>
+                            </Grid>
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="2" Style="{StaticResource MotionCardStyle}"
-                            IsEnabled="{Binding IsEditorEnabled}">
-                        <Grid Margin="18">
+                    <Border Grid.Column="2"
+                            IsEnabled="{Binding IsEditorEnabled}"
+                            BorderBrush="{StaticResource MotionBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <Grid Margin="14">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="14" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="38" />
+                                <RowDefinition Height="10" />
                                 <RowDefinition Height="*" />
-                                <RowDefinition Height="14" />
-                                <RowDefinition Height="46" />
                             </Grid.RowDefinitions>
-                            <TextBlock Style="{StaticResource MotionCardTitleStyle}" Text="轴分配" />
-
+                            <TextBlock FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Text="{Binding AvailableAxes.Count, StringFormat=可选轴（{0}）}" />
                             <Grid Grid.Row="2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" MinWidth="280" />
-                                    <ColumnDefinition Width="84" />
-                                    <ColumnDefinition Width="*" MinWidth="280" />
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" BorderBrush="{StaticResource MotionBorderBrush}"
-                                        BorderThickness="1" CornerRadius="6">
-                                    <Grid Margin="14">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="10" />
-                                            <RowDefinition Height="38" />
-                                            <RowDefinition Height="10" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock FontSize="15" FontWeight="SemiBold"
-                                                   Text="{Binding AvailableAxes.Count, StringFormat=可选轴（{0}）}" />
-                                        <TextBox Grid.Row="2" Style="{StaticResource MotionInputStyle}"
-                                                 ToolTip="按轴名称搜索"
-                                                 Text="{Binding AvailableAxisSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                        <Grid Grid.Row="4">
-                                            <ListBox x:Name="AvailableAxesList"
-                                                     ItemsSource="{Binding AvailableAxesView}"
-                                                     ItemTemplate="{StaticResource GroupManagementAxisTemplate}"
-                                                     ItemContainerStyle="{StaticResource GroupManagementAxisItemStyle}"
-                                                     Background="Transparent" BorderThickness="0"
-                                                     VirtualizingPanel.IsVirtualizing="True"
-                                                     VirtualizingPanel.VirtualizationMode="Recycling"
-                                                     ScrollViewer.CanContentScroll="True"
-                                                     ScrollViewer.IsDeferredScrollingEnabled="True"
-                                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                                     ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                                       IsHitTestVisible="False" Text="没有可分配的轴">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding AvailableAxesView.IsEmpty}" Value="True">
-                                                                <Setter Property="Visibility" Value="Visible" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Grid>
-                                    </Grid>
-                                </Border>
-
-                                <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
-                                            Command="{Binding AddSelectedAxesCommand}" Content="›" />
-                                    <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
-                                            Command="{Binding AddAllFilteredAxesCommand}" Content="»" />
-                                    <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
-                                            Command="{Binding RemoveSelectedAxesCommand}" Content="‹" />
-                                    <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
-                                            Margin="0" Command="{Binding RemoveAllFilteredAxesCommand}" Content="«" />
-                                </StackPanel>
-
-                                <Border Grid.Column="2" BorderBrush="{StaticResource MotionBorderBrush}"
-                                        BorderThickness="1" CornerRadius="6">
-                                    <Grid Margin="14">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto" />
-                                            <RowDefinition Height="10" />
-                                            <RowDefinition Height="38" />
-                                            <RowDefinition Height="10" />
-                                            <RowDefinition Height="*" />
-                                        </Grid.RowDefinitions>
-                                        <TextBlock FontSize="15" FontWeight="SemiBold"
-                                                   Text="{Binding AssignedAxes.Count, StringFormat=已分配轴（{0}）}" />
-                                        <TextBox Grid.Row="2" Style="{StaticResource MotionInputStyle}"
-                                                 ToolTip="按轴名称搜索"
-                                                 Text="{Binding AssignedAxisSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                        <Grid Grid.Row="4">
-                                            <ListBox x:Name="AssignedAxesList"
-                                                     ItemsSource="{Binding AssignedAxesView}"
-                                                     ItemTemplate="{StaticResource GroupManagementAssignedAxisTemplate}"
-                                                     ItemContainerStyle="{StaticResource GroupManagementAxisItemStyle}"
-                                                     Background="Transparent" BorderThickness="0"
-                                                     VirtualizingPanel.IsVirtualizing="True"
-                                                     VirtualizingPanel.VirtualizationMode="Recycling"
-                                                     ScrollViewer.CanContentScroll="True"
-                                                     ScrollViewer.IsDeferredScrollingEnabled="True"
-                                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                                     ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                                       IsHitTestVisible="False" Text="当前分组尚未分配轴">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding AssignedAxesView.IsEmpty}" Value="True">
-                                                                <Setter Property="Visibility" Value="Visible" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Grid>
-                                    </Grid>
-                                </Border>
+                                <TextBox Padding="32,0,10,0"
+                                         Style="{StaticResource MotionInputStyle}"
+                                         ToolTip="按轴名称或编号搜索"
+                                         Text="{Binding AvailableAxisSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Path Width="15"
+                                      Height="15"
+                                      Margin="10,0,0,0"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      IsHitTestVisible="False"
+                                      Stretch="Uniform"
+                                      Stroke="#FF8A96A8"
+                                      StrokeThickness="1.6"
+                                      Data="{StaticResource MotionIcon.Search}" />
+                                <TextBlock Margin="32,0,10,0"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           Foreground="#FF8A96A8"
+                                           Text="搜索轴名称或编号...">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AvailableAxisSearchText}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Grid>
+                            <Grid Grid.Row="4">
+                                <ListBox x:Name="AvailableAxesList"
+                                         ItemsSource="{Binding AvailableAxesView}"
+                                         ItemTemplate="{StaticResource GroupManagementAxisTemplate}"
+                                         ItemContainerStyle="{StaticResource GroupManagementAxisItemStyle}"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         VirtualizingPanel.IsVirtualizing="True"
+                                         VirtualizingPanel.VirtualizationMode="Recycling"
+                                         ScrollViewer.CanContentScroll="True"
+                                         ScrollViewer.IsDeferredScrollingEnabled="True"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                           IsHitTestVisible="False"
+                                           Text="没有可分配的轴">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AvailableAxesView.IsEmpty}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Grid>
+                    </Border>
 
-                            <Border Grid.Row="4" Background="{StaticResource MotionReferencePageBrush}"
-                                    BorderBrush="{StaticResource MotionBorderBrush}"
-                                    BorderThickness="1" CornerRadius="6">
-                                <Grid Margin="16,0">
-                                    <TextBlock VerticalAlignment="Center"
-                                               Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                               Text="{Binding SelectedAxisCount, StringFormat=已选择 {0} 项}" />
-                                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
-                                               Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                               Text="{Binding AssignedAxisCount, StringFormat=当前分组共 {0} 轴}" />
-                                </Grid>
-                            </Border>
+                    <StackPanel Grid.Column="3"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding IsEditorEnabled}">
+                        <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
+                                Command="{Binding AddSelectedAxesCommand}"
+                                Content="›" />
+                        <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
+                                Command="{Binding AddAllFilteredAxesCommand}"
+                                Content="»" />
+                        <Button Style="{StaticResource GroupManagementTransferButtonStyle}"
+                                Command="{Binding RemoveSelectedAxesCommand}"
+                                Content="‹" />
+                        <Button Margin="0"
+                                Style="{StaticResource GroupManagementTransferButtonStyle}"
+                                Command="{Binding RemoveAllFilteredAxesCommand}"
+                                Content="«" />
+                    </StackPanel>
 
-                            <Border Grid.RowSpan="5" Background="#F7FFFFFF" IsHitTestVisible="True">
-                                <Border.Style>
-                                    <Style TargetType="Border">
+                    <Border Grid.Column="4"
+                            IsEnabled="{Binding IsEditorEnabled}"
+                            BorderBrush="{StaticResource MotionBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <Grid Margin="14">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="38" />
+                                <RowDefinition Height="10" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Text="{Binding AssignedAxes.Count, StringFormat=已分配轴（{0}）}" />
+                            <Grid Grid.Row="2">
+                                <TextBox Padding="32,0,10,0"
+                                         Style="{StaticResource MotionInputStyle}"
+                                         ToolTip="按轴名称搜索"
+                                         Text="{Binding AssignedAxisSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Path Width="15"
+                                      Height="15"
+                                      Margin="10,0,0,0"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      IsHitTestVisible="False"
+                                      Stretch="Uniform"
+                                      Stroke="#FF8A96A8"
+                                      StrokeThickness="1.6"
+                                      Data="{StaticResource MotionIcon.Search}" />
+                                <TextBlock Margin="32,0,10,0"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           Foreground="#FF8A96A8"
+                                           Text="搜索已分配轴...">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AssignedAxisSearchText}" Value="">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                            <Grid Grid.Row="4">
+                                <ListBox x:Name="AssignedAxesList"
+                                         ItemsSource="{Binding AssignedAxesView}"
+                                         ItemTemplate="{StaticResource GroupManagementAssignedAxisTemplate}"
+                                         ItemContainerStyle="{StaticResource GroupManagementAxisItemStyle}"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         VirtualizingPanel.IsVirtualizing="True"
+                                         VirtualizingPanel.VirtualizationMode="Recycling"
+                                         ScrollViewer.CanContentScroll="True"
+                                         ScrollViewer.IsDeferredScrollingEnabled="True"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                           IsHitTestVisible="False"
+                                           Text="当前分组尚未分配轴">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AssignedAxesView.IsEmpty}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2"
+                            Grid.ColumnSpan="3"
+                            Background="#F7FFFFFF"
+                            IsHitTestVisible="True">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasSelectedGroup}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock HorizontalAlignment="Center"
+                                       FontSize="17"
+                                       FontWeight="SemiBold"
+                                       Text="尚未选择分组" />
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                       Text="请从左侧选择分组，或点击“+”新建分组。" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="3"
+                        Margin="20,0,20,10"
+                        Background="{StaticResource MotionReferencePageBrush}"
+                        BorderBrush="{StaticResource MotionBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="6">
+                    <Grid Margin="14,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                            <Ellipse Width="7"
+                                     Height="7"
+                                     Fill="{StaticResource MotionBrush.Success}" />
+                            <TextBlock MaxWidth="520"
+                                       Margin="8,0,10,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                       Text="{Binding StatusMessage}"
+                                       TextTrimming="CharacterEllipsis" />
+                            <Button Height="32"
+                                    Padding="12,0"
+                                    Command="{Binding LoadCommand}"
+                                    Content="重试">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource MotionSecondaryButton}">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasSelectedGroup}" Value="False">
+                                            <DataTrigger Binding="{Binding HasLoadError}" Value="True">
                                                 <Setter Property="Visibility" Value="Visible" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Border.Style>
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock HorizontalAlignment="Center" FontSize="17" FontWeight="SemiBold"
-                                               Text="尚未创建分组" />
-                                    <TextBlock Margin="0,8,0,0" Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                               Text="点击左侧“新建分组”开始配置。" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-                    </Border>
-                </Grid>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                            <TextBlock Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                       Text="{Binding SelectedAxisCount, StringFormat=已选择 {0} 项}" />
+                            <Border Width="1"
+                                    Height="14"
+                                    Margin="14,0"
+                                    Background="{StaticResource MotionBorderBrush}" />
+                            <TextBlock Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                       Text="{Binding AssignedAxisCount, StringFormat=当前分组共 {0} 轴}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </Grid>
-        </ScrollViewer>
-    </Grid>
+        </Border>
+    </ScrollViewer>
 </UserControl>

@@ -249,6 +249,29 @@ public sealed class MockMotionCardDriver : IMotionCardDriver
         }
     }
 
+    public async Task SetServoEnabledAsync(
+        AxisAddress address,
+        bool enabled,
+        CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("SetServoEnabled");
+            var state = GetAxisState(address, "SetServoEnabled");
+            if (!enabled && state.IsMoving)
+            {
+                throw Failure("SetServoEnabled", "运动中的轴不能去使能。");
+            }
+
+            _axisStates[address] = state with { ServoOn = enabled };
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     public async Task MoveAbsoluteAsync(
         AxisPulseTarget target,
         double velocityPulsesPerSecond,

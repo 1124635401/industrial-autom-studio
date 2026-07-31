@@ -102,7 +102,6 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="64" />
-                <RowDefinition Height="60" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="30" />
             </Grid.RowDefinitions>
@@ -272,53 +271,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1"
-                    Padding="22,8"
-                    Background="{StaticResource ShellBrush.Card}"
-                    BorderBrush="{StaticResource ShellBrush.Border}"
-                    BorderThickness="0,0,0,1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock FontSize="11"
-                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
-                                   Text="{Binding Breadcrumb}" />
-                        <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
-                            <TextBlock FontSize="22"
-                                       FontWeight="SemiBold"
-                                       Text="{Binding PageTitle}" />
-                            <TextBlock Margin="14,6,0,0"
-                                       VerticalAlignment="Top"
-                                       FontSize="12"
-                                       Foreground="{StaticResource ShellBrush.SecondaryText}"
-                                       Text="{Binding PageDescription}" />
-                        </StackPanel>
-                    </StackPanel>
-                    <Border Grid.Column="1"
-                            Padding="12,7"
-                            VerticalAlignment="Center"
-                            Background="{StaticResource ShellBrush.ErrorLight}"
-                            CornerRadius="4">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Visible" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <TextBlock Foreground="{StaticResource ShellBrush.Error}"
-                                   Text="{Binding ErrorMessage}" />
-                    </Border>
-                </Grid>
-            </Border>
-
-            <Grid Grid.Row="2" Background="{StaticResource ShellBrush.Page}">
+            <Grid Grid.Row="1" Background="{StaticResource ShellBrush.Page}">
                 <ContentControl Margin="22,18,22,18"
                                 prism:RegionManager.RegionName="MainContentRegion" />
                 <ContentControl Panel.ZIndex="10"
@@ -326,7 +279,7 @@
                                 prism:RegionManager.RegionName="OverlayRegion" />
             </Grid>
 
-            <Border Grid.Row="3"
+            <Border Grid.Row="2"
                     Background="{StaticResource ShellBrush.TopBar}"
                     BorderBrush="{StaticResource ShellBrush.Border}"
                     BorderThickness="0,1,0,0">

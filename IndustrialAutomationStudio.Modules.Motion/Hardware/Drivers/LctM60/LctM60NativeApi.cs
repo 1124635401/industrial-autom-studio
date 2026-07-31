@@ -40,6 +40,8 @@ internal sealed class LctM60NativeApi : ILctM60NativeApi
         short count,
         short cardNo) =>
         MGetCommandVelocity(axisNo, out velocity, count, cardNo);
+    public short ServoOn(short axisNo, short cardNo) => MServoOn(axisNo, cardNo);
+    public short ServoOff(short axisNo, short cardNo) => MServoOff(axisNo, cardNo);
     public short SetMove(
         short axisNo,
         ref LctM60CommandParameters parameters,
@@ -123,6 +125,12 @@ internal sealed class LctM60NativeApi : ILctM60NativeApi
         out double velocity,
         short count,
         short cardNo);
+
+    [DllImport(LibraryName, EntryPoint = "M_Servo_On", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    private static extern short MServoOn(short axisNo, short cardNo);
+
+    [DllImport(LibraryName, EntryPoint = "M_Servo_Off", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    private static extern short MServoOff(short axisNo, short cardNo);
 
     [DllImport(LibraryName, EntryPoint = "M_SetMove", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     private static extern short MSetMove(

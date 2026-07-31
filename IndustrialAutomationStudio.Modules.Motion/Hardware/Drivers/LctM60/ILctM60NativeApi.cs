@@ -18,6 +18,8 @@ internal interface ILctM60NativeApi
     short GetCommandPosition(short axisNo, out double position, short count, short cardNo);
     short GetEncoderPosition(short axisNo, out double position, short count, short cardNo);
     short GetCommandVelocity(short axisNo, out double velocity, short count, short cardNo);
+    short ServoOn(short axisNo, short cardNo);
+    short ServoOff(short axisNo, short cardNo);
     short SetMove(
         short axisNo,
         ref LctM60CommandParameters parameters,

@@ -16,6 +16,23 @@ public interface IMotionExecutionService
         double speed,
         CancellationToken cancellationToken = default);
 
+    Task SetServoEnabledAsync(
+        AxisConfig axis,
+        bool enabled,
+        CancellationToken cancellationToken = default);
+
+    Task MoveAxisAbsoluteAsync(
+        AxisConfig axis,
+        double targetPosition,
+        double speed,
+        CancellationToken cancellationToken = default);
+
+    Task<double> MoveAxisRelativeAsync(
+        AxisConfig axis,
+        double delta,
+        double speed,
+        CancellationToken cancellationToken = default);
+
     Task MoveToPointAsync(
         AxisGroupConfig group,
         IReadOnlyDictionary<AxisAddress, AxisConfig> axes,

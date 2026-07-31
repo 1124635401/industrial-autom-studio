@@ -32,6 +32,11 @@ public interface IMotionCardDriver : IAsyncDisposable
         CancellationToken cancellationToken = default) =>
         Task.FromException<IReadOnlyList<AxisPulseState>>(
             new NotSupportedException("当前驱动不支持运动控制。"));
+    Task SetServoEnabledAsync(
+        AxisAddress address,
+        bool enabled,
+        CancellationToken cancellationToken = default) =>
+        Task.FromException(new NotSupportedException("当前驱动不支持轴伺服使能控制。"));
     Task StartJogAsync(
         AxisAddress address,
         double velocityPulsesPerSecond,

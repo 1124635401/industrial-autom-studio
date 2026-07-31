@@ -77,6 +77,91 @@ public sealed class MotionExecutionService(IMotionCardService cardService)
             cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task SetServoEnabledAsync(
+        AxisConfig axis,
+        bool enabled,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(axis);
+        EnsureMotionAvailable();
+        ValidateAxisEnabled(axis);
+
+        var state = Assert.SingleOrDefault(
+            await cardService.ReadAxisStatesAsync([axis.Address], cancellationToken)
+                .ConfigureAwait(false),
+            axis.Address);
+        if (state.ServoOn == enabled)
+        {
+            return;
+        }
+
+        if (!enabled && state.IsMoving)
+        {
+            throw new InvalidOperationException($"轴 {axis.AxisName} 正在运动，不能去使能。");
+        }
+
+        await cardService.SetServoEnabledAsync(
+                axis.Address,
+                enabled,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task MoveAxisAbsoluteAsync(
+        AxisConfig axis,
+        double targetPosition,
+        double speed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(axis);
+        ValidateSpeed(speed);
+        EnsureMotionAvailable();
+        ValidateAxisEnabled(axis);
+
+        var scale = GetPulseScale(axis);
+        var state = await ReadReadyAxisStateAsync(axis, cancellationToken)
+            .ConfigureAwait(false);
+        await DispatchAxisMoveAsync(
+                axis,
+                state,
+                targetPosition,
+                speed,
+                scale,
+                cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<double> MoveAxisRelativeAsync(
+        AxisConfig axis,
+        double delta,
+        double speed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(axis);
+        if (!double.IsFinite(delta) || delta == 0)
+        {
+            throw new InvalidOperationException("相对位移必须是非零有限数值。");
+        }
+
+        ValidateSpeed(speed);
+        EnsureMotionAvailable();
+        ValidateAxisEnabled(axis);
+
+        var scale = GetPulseScale(axis);
+        var state = await ReadReadyAxisStateAsync(axis, cancellationToken)
+            .ConfigureAwait(false);
+        var targetPosition = state.ActualPulses / scale + delta;
+        await DispatchAxisMoveAsync(
+                axis,
+                state,
+                targetPosition,
+                speed,
+                scale,
+                cancellationToken)
+            .ConfigureAwait(false);
+        return targetPosition;
+    }
+
     public async Task MoveToPointAsync(
         AxisGroupConfig group,
         IReadOnlyDictionary<AxisAddress, AxisConfig> axes,
@@ -193,6 +278,52 @@ public sealed class MotionExecutionService(IMotionCardService cardService)
     {
         ArgumentNullException.ThrowIfNull(addresses);
         return cardService.StopAxesAsync(addresses, mode, cancellationToken);
+    }
+
+    private async Task<AxisPulseState> ReadReadyAxisStateAsync(
+        AxisConfig axis,
+        CancellationToken cancellationToken)
+    {
+        var state = Assert.SingleOrDefault(
+            await cardService.ReadAxisStatesAsync([axis.Address], cancellationToken)
+                .ConfigureAwait(false),
+            axis.Address);
+        ValidateReadyState(axis, state);
+        if (state.PositiveLimit || state.NegativeLimit)
+        {
+            throw new InvalidOperationException($"轴 {axis.AxisName} 已触发硬限位。");
+        }
+
+        return state;
+    }
+
+    private async Task DispatchAxisMoveAsync(
+        AxisConfig axis,
+        AxisPulseState state,
+        double targetPosition,
+        double speed,
+        double scale,
+        CancellationToken cancellationToken)
+    {
+        ValidateSoftLimits(axis, targetPosition);
+        var targetPulses = ToPulseTarget(targetPosition, scale);
+        var currentPulses = checked((int)Math.Round(
+            state.ActualPulses,
+            MidpointRounding.AwayFromZero));
+        if (targetPulses == currentPulses)
+        {
+            throw new InvalidOperationException($"轴 {axis.AxisName} 已位于目标位置。");
+        }
+
+        var velocity = Math.Min(
+            speed,
+            PositiveOrThrow(axis.MaxVelocity, nameof(axis.MaxVelocity))) * scale;
+        await cardService.MoveAbsoluteAsync(
+                new AxisPulseTarget(axis.Address, targetPulses),
+                velocity,
+                CreateProfile(axis, scale),
+                cancellationToken)
+            .ConfigureAwait(false);
     }
 
     private static AxisState ToAxisState(AxisConfig config, AxisPulseState state)

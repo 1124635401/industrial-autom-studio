@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             Background="#FFF4F6F9"
+             Background="Transparent"
              SizeChanged="MotionConnectionView_OnSizeChanged">
     <UserControl.Resources>
         <Style x:Key="ConnectionFieldLabelStyle"
@@ -221,17 +221,7 @@
                     Padding="32"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Top"
-                    Background="White"
-                    BorderBrush="#FFF0F0F0"
-                    BorderThickness="1"
-                    CornerRadius="12">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="20"
-                                      Direction="270"
-                                      Opacity="0.08"
-                                      ShadowDepth="4"
-                                      Color="#FF000000" />
-                </Border.Effect>
+                    Style="{StaticResource MotionWorkspaceCardStyle}">
 
                 <StackPanel>
                     <Border Padding="0,0,0,16"

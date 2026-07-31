@@ -5,15 +5,5 @@
              xmlns:controls="clr-namespace:IndustrialAutomationStudio.Modules.Motion.Views.Controls"
              prism:ViewModelLocator.AutoWireViewModel="True"
              Background="Transparent">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="{DynamicResource MotionAxisHeaderHeight}" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="{DynamicResource MotionAxisStatusHeight}" />
-        </Grid.RowDefinitions>
-
-        <controls:AxisConfigurationHeader />
-        <controls:AxisConfigurationTablePanel Grid.Row="1" Margin="0,12,0,14" />
-        <controls:ConfigurationStatusBar Grid.Row="2" Margin="0,0,0,4" />
-    </Grid>
+    <controls:AxisConfigurationTablePanel Margin="32" />
 </UserControl>

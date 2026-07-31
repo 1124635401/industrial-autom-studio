@@ -22,7 +22,17 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         new Dictionary<AxisAddress, AxisConfig>();
     private List<PositionPoint> _allPoints = [];
     private AxisGroupOptionViewModel? _selectedGroup;
+    private PointRowViewModel? _selectedPoint;
     private JogDirectionViewModel? _activeDirection;
+    private AxisControlCardViewModel? _xAxisCard;
+    private AxisControlCardViewModel? _yAxisCard;
+    private AxisControlCardViewModel? _zAxisCard;
+    private AxisControlCardViewModel? _rAxisCard;
+    private PointDebugJogPadViewModel _jogPad = new([]);
+    private bool _activeContinuousJog;
+    private bool _axisMotionPending;
+    private DateTimeOffset _axisMoveEarliestCompletion;
+    private DateTimeOffset _axisMoveStarted;
     private double _jogSpeed = 10;
     private string _statusMessage = "准备就绪";
     private bool _isBusy;
@@ -54,14 +64,14 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             () => IsInteractionEnabled && SelectedGroup is not null);
         BeginEditPointCommand = new DelegateCommand<PointRowViewModel>(
             BeginEditPoint,
-            row => row is not null && IsInteractionEnabled);
+            row => row is { IsEditing: false } && IsInteractionEnabled);
         SavePointCommand = new AsyncDelegateCommand<PointRowViewModel>(
             SavePointAsync,
-            row => row is not null && IsInteractionEnabled);
+            row => row is { IsEditing: true } && IsInteractionEnabled);
         CancelEditPointCommand = new DelegateCommand<PointRowViewModel>(CancelEditPoint);
         DeletePointCommand = new AsyncDelegateCommand<PointRowViewModel>(
             DeletePointAsync,
-            row => row is not null && IsInteractionEnabled);
+            row => row is { IsEditing: false } && IsInteractionEnabled);
         LocatePointCommand = new AsyncDelegateCommand<PointRowViewModel>(
             LocatePointAsync,
             row => row is { IsCompatible: true, IsEditing: false } && IsInteractionEnabled);
@@ -74,6 +84,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
     public ObservableCollection<AxisGroupOptionViewModel> Groups { get; } = [];
     public ObservableCollection<AxisPositionReadoutViewModel> PositionReadouts { get; } = [];
+    public ObservableCollection<AxisControlCardViewModel> AxisCards { get; } = [];
     public ObservableCollection<PointRowViewModel> Points { get; } = [];
     public ObservableCollection<JogModuleViewModel> Modules { get; } = [];
     public ObservableCollection<JogModuleViewModel> CenterModules { get; } = [];
@@ -92,6 +103,48 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     public AsyncDelegateCommand<JogDirectionViewModel> StartJogCommand { get; }
     public AsyncDelegateCommand<JogDirectionViewModel> StopJogCommand { get; }
     public AsyncDelegateCommand StopGroupCommand { get; }
+
+    public PointRowViewModel? SelectedPoint
+    {
+        get => _selectedPoint;
+        set
+        {
+            if (SetProperty(ref _selectedPoint, value))
+            {
+                RaiseCommandStates();
+            }
+        }
+    }
+
+    public AxisControlCardViewModel? XAxisCard
+    {
+        get => _xAxisCard;
+        private set => SetProperty(ref _xAxisCard, value);
+    }
+
+    public AxisControlCardViewModel? YAxisCard
+    {
+        get => _yAxisCard;
+        private set => SetProperty(ref _yAxisCard, value);
+    }
+
+    public AxisControlCardViewModel? ZAxisCard
+    {
+        get => _zAxisCard;
+        private set => SetProperty(ref _zAxisCard, value);
+    }
+
+    public AxisControlCardViewModel? RAxisCard
+    {
+        get => _rAxisCard;
+        private set => SetProperty(ref _rAxisCard, value);
+    }
+
+    public PointDebugJogPadViewModel JogPad
+    {
+        get => _jogPad;
+        private set => SetProperty(ref _jogPad, value);
+    }
 
     public AxisGroupOptionViewModel? SelectedGroup
     {
@@ -235,6 +288,14 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 }
             }
 
+            foreach (var card in AxisCards)
+            {
+                if (byAddress.TryGetValue(card.Address, out var state))
+                {
+                    card.ApplyState(state);
+                }
+            }
+
             var unsafeState = states.FirstOrDefault(IsUnsafeState);
             if (IsMotionActive && unsafeState is not null)
             {
@@ -242,6 +303,31 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                     $"轴 {unsafeState.Address.CardNo}:{unsafeState.Address.AxisNo} 状态异常",
                     cancellationToken);
                 return;
+            }
+
+            if (_axisMotionPending &&
+                DateTimeOffset.UtcNow >= _axisMoveEarliestCompletion &&
+                _activeTargets.Count == 1)
+            {
+                var target = _activeTargets.Single();
+                if (byAddress.TryGetValue(target.Key, out var state) &&
+                    _axes.TryGetValue(target.Key, out var axis))
+                {
+                    var tolerance = Math.Max(0, axis.InPositionError);
+                    if (!state.IsMoving &&
+                        Math.Abs(state.ActualPosition - target.Value) <= tolerance)
+                    {
+                        CompleteAxisMove("单轴运动完成。");
+                        return;
+                    }
+
+                    if (DateTimeOffset.UtcNow - _axisMoveStarted >=
+                        TimeSpan.FromSeconds(Math.Max(0.1, axis.InPositionTimeout)))
+                    {
+                        await EmergencyStopForFaultAsync("单轴运动超时", cancellationToken);
+                        return;
+                    }
+                }
             }
 
             if (_pointMotionPending &&
@@ -299,7 +385,8 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         CancellationToken cancellationToken = default)
     {
         if (!IsInteractionEnabled ||
-            !_axes.TryGetValue(direction.Address, out var axis))
+            !_axes.TryGetValue(direction.Address, out var axis) ||
+            AxisCards.FirstOrDefault(card => card.Address == direction.Address) is not { } card)
         {
             return;
         }
@@ -307,14 +394,47 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         _activeDirection = direction;
         direction.IsActive = true;
         IsMotionActive = true;
-        StatusMessage = $"Jog：{direction.AxisName} {direction.Label}";
         try
         {
-            await _motionExecution.StartJogAsync(
-                axis,
-                direction.Direction,
-                JogSpeed,
-                cancellationToken);
+            switch (card.SelectedMode)
+            {
+                case AxisMotionMode.Continuous:
+                    _activeContinuousJog = true;
+                    StatusMessage = $"Jog：{direction.AxisName} {direction.Label}";
+                    await _motionExecution.StartJogAsync(
+                        axis,
+                        direction.Direction,
+                        card.JogSpeed,
+                        cancellationToken);
+                    break;
+
+                case AxisMotionMode.Relative:
+                    _activeContinuousJog = false;
+                    var delta = Math.Abs(card.RelativeDistance) * direction.Direction;
+                    var relativeTarget = await _motionExecution.MoveAxisRelativeAsync(
+                        axis,
+                        delta,
+                        card.MotionSpeed,
+                        cancellationToken);
+                    BeginAxisMove(direction.Address, relativeTarget);
+                    StatusMessage = $"{direction.AxisName} 相对运动已下发。";
+                    break;
+
+                case AxisMotionMode.Absolute:
+                    _activeContinuousJog = false;
+                    var absoluteTarget = Math.Abs(card.TargetPosition) * direction.Direction;
+                    await _motionExecution.MoveAxisAbsoluteAsync(
+                        axis,
+                        absoluteTarget,
+                        card.MotionSpeed,
+                        cancellationToken);
+                    BeginAxisMove(direction.Address, absoluteTarget);
+                    StatusMessage = $"{direction.AxisName} 绝对运动已下发。";
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
@@ -322,10 +442,12 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             {
                 direction.IsActive = false;
                 _activeDirection = null;
+                _activeContinuousJog = false;
+                _axisMotionPending = false;
                 IsMotionActive = false;
             }
 
-            StatusMessage = $"Jog 启动失败：{exception.Message}";
+            StatusMessage = $"运动启动失败：{exception.Message}";
         }
     }
 
@@ -333,7 +455,8 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         JogDirectionViewModel direction,
         CancellationToken cancellationToken = default)
     {
-        if (_activeDirection is null ||
+        if (!_activeContinuousJog ||
+            _activeDirection is null ||
             !ReferenceEquals(_activeDirection, direction))
         {
             return;
@@ -357,6 +480,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         {
             direction.IsActive = false;
             _activeDirection = null;
+            _activeContinuousJog = false;
             IsMotionActive = false;
         }
     }
@@ -414,12 +538,18 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         };
         var row = CreatePointRow(point, group, isNew: true);
         Points.Add(row);
+        SelectedPoint = row;
         RaisePropertyChanged(nameof(HasPoints));
         StatusMessage = "已记录当前位置，请修改名称和速度后保存。";
         return row;
     }
 
-    public void BeginEditPoint(PointRowViewModel row) => row.BeginEdit();
+    public void BeginEditPoint(PointRowViewModel row)
+    {
+        SelectedPoint = row;
+        row.BeginEdit();
+        RaiseCommandStates();
+    }
 
     public async Task SavePointAsync(
         PointRowViewModel row,
@@ -458,6 +588,8 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             await _pointRepository.SaveAsync(updated, cancellationToken);
             _allPoints = updated;
             row.CommitEdit();
+            SelectedPoint = row;
+            RaiseCommandStates();
             StatusMessage = $"点位“{row.Name}”已保存。";
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
@@ -475,12 +607,18 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         if (row.IsNew)
         {
             Points.Remove(row);
+            if (ReferenceEquals(SelectedPoint, row))
+            {
+                SelectedPoint = null;
+            }
             RaisePropertyChanged(nameof(HasPoints));
         }
         else
         {
             row.CancelEdit();
         }
+
+        RaiseCommandStates();
     }
 
     public async Task DeletePointAsync(
@@ -502,6 +640,10 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
             _allPoints = updated;
             Points.Remove(row);
+            if (ReferenceEquals(SelectedPoint, row))
+            {
+                SelectedPoint = Points.FirstOrDefault();
+            }
             RaisePropertyChanged(nameof(HasPoints));
             StatusMessage = $"点位“{row.Name}”已删除。";
         }
@@ -595,6 +737,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         if (stopped)
         {
             _pointMotionPending = false;
+            _axisMotionPending = false;
             _activePoint?.MarkStopped();
             _activePoint = null;
             _activeTargets = new Dictionary<AxisAddress, double>();
@@ -604,6 +747,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 _activeDirection = null;
             }
 
+            _activeContinuousJog = false;
             IsMotionActive = false;
         }
     }
@@ -638,6 +782,17 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 member.Role,
                 RoleLabel(member, axis),
                 DisplayUnit(axis.Unit)));
+            var card = new AxisControlCardViewModel(
+                axis,
+                member.Role,
+                RoleLabel(member, axis),
+                DisplayUnit(axis.Unit),
+                (enabled, cancellationToken) => SetAxisServoEnabledAsync(
+                    axis,
+                    enabled,
+                    cancellationToken));
+            AxisCards.Add(card);
+            AssignAxisCard(card);
         }
 
         var build = _jogModuleFactory.Build(group, _axes);
@@ -646,12 +801,16 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             Modules.Add(module);
             RegionCollection(module.Region).Add(module);
         }
+        JogPad = new PointDebugJogPadViewModel(
+            build.Modules.SelectMany(module => module.Directions));
 
         foreach (var point in _allPoints.Where(point =>
                      string.Equals(point.GroupId, group.Id, StringComparison.Ordinal)))
         {
             Points.Add(CreatePointRow(point, group));
         }
+
+        SelectedPoint = Points.FirstOrDefault();
 
         RaiseCollectionStates();
     }
@@ -780,12 +939,19 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     private void ClearSelectedGroup()
     {
         PositionReadouts.Clear();
+        AxisCards.Clear();
         Points.Clear();
         Modules.Clear();
         CenterModules.Clear();
         LinearModules.Clear();
         RotaryModules.Clear();
         AuxiliaryModules.Clear();
+        XAxisCard = null;
+        YAxisCard = null;
+        ZAxisCard = null;
+        RAxisCard = null;
+        JogPad = new PointDebugJogPadViewModel([]);
+        SelectedPoint = null;
         RaiseCollectionStates();
     }
 
@@ -798,6 +964,75 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             JogModuleRegion.Auxiliary => AuxiliaryModules,
             _ => throw new ArgumentOutOfRangeException(nameof(region), region, null)
         };
+
+    private void AssignAxisCard(AxisControlCardViewModel card)
+    {
+        switch (card.Role)
+        {
+            case AxisRole.X:
+            case AxisRole.XY:
+                XAxisCard ??= card;
+                break;
+            case AxisRole.Y:
+                YAxisCard ??= card;
+                break;
+            case AxisRole.Z:
+            case AxisRole.V:
+            case AxisRole.W:
+                ZAxisCard ??= card;
+                break;
+            case AxisRole.R:
+            case AxisRole.U:
+                RAxisCard ??= card;
+                break;
+            default:
+                XAxisCard ??= card;
+                break;
+        }
+    }
+
+    private async Task SetAxisServoEnabledAsync(
+        AxisConfig axis,
+        bool enabled,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _motionExecution.SetServoEnabledAsync(
+                axis,
+                enabled,
+                cancellationToken);
+            StatusMessage = $"轴 {axis.AxisName} 已{(enabled ? "使能" : "去使能")}。";
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            StatusMessage = $"轴 {axis.AxisName} {(enabled ? "使能" : "去使能")}失败：{exception.Message}";
+            throw;
+        }
+    }
+
+    private void BeginAxisMove(AxisAddress address, double target)
+    {
+        _axisMotionPending = true;
+        _axisMoveEarliestCompletion = DateTimeOffset.UtcNow.AddMilliseconds(250);
+        _axisMoveStarted = DateTimeOffset.UtcNow;
+        _activeTargets = new Dictionary<AxisAddress, double> { [address] = target };
+    }
+
+    private void CompleteAxisMove(string message)
+    {
+        _axisMotionPending = false;
+        _activeTargets = new Dictionary<AxisAddress, double>();
+        if (_activeDirection is not null)
+        {
+            _activeDirection.IsActive = false;
+            _activeDirection = null;
+        }
+
+        _activeContinuousJog = false;
+        IsMotionActive = false;
+        StatusMessage = message;
+    }
 
     private void RaiseCollectionStates()
     {
@@ -838,6 +1073,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 MotionStopMode.Emergency,
                 cancellationToken);
             _pointMotionPending = false;
+            _axisMotionPending = false;
             _activePoint?.MarkFailed(reason);
             _activePoint = null;
             _activeTargets = new Dictionary<AxisAddress, double>();
@@ -847,6 +1083,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 _activeDirection = null;
             }
 
+            _activeContinuousJog = false;
             IsMotionActive = false;
             StatusMessage = $"{reason}，已紧急停止当前分组。";
         }

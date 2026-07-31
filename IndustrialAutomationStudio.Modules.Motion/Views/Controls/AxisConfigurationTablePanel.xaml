@@ -1,67 +1,226 @@
 <UserControl x:Class="IndustrialAutomationStudio.Modules.Motion.Views.Controls.AxisConfigurationTablePanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Border Style="{StaticResource MotionCardStyle}" Padding="0">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:IndustrialAutomationStudio.Modules.Motion.Views.Controls">
+    <Border Padding="0"
+            Style="{StaticResource MotionWorkspaceCardStyle}">
         <Grid>
-            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="64" />
+                <RowDefinition Height="56" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="54" />
+            </Grid.RowDefinitions>
 
-            <Grid Margin="14,12,14,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" /><ColumnDefinition Width="16" />
-                    <ColumnDefinition Width="280" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock VerticalAlignment="Center" FontSize="16" FontWeight="SemiBold"
-                           Foreground="{StaticResource MotionReferenceTitleBrush}" Text="轴配置表" />
+            <Border Background="White"
+                    BorderBrush="#FFF0F0F0"
+                    BorderThickness="0,0,0,1"
+                    CornerRadius="11,11,0,0">
+                <Grid Margin="24,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                <Grid Grid.Column="2">
-                    <TextBox Height="{DynamicResource MotionAxisInputHeight}" Margin="0" Padding="10,0,36,0"
-                             VerticalContentAlignment="Center" FontSize="13"
-                             BorderBrush="{StaticResource MotionReferenceBorderBrush}"
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock Margin="11,0,36,0" VerticalAlignment="Center" IsHitTestVisible="False"
-                               Foreground="#FF8A96A8" Text="搜索轴名称或编号...">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SearchText}" Value="">
-                                        <Setter Property="Visibility" Value="Visible" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <Path Width="16" Height="16" Margin="0,0,10,0" HorizontalAlignment="Right"
-                          VerticalAlignment="Center" Stretch="Uniform" Stroke="#FF8A96A8"
-                          StrokeThickness="1.6" Data="{StaticResource MotionIcon.Search}" />
+                    <StackPanel VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource MotionTextPrimaryBrush}"
+                                   Text="轴配置表" />
+                        <Border Margin="12,0,0,0"
+                                Padding="9,4"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource MotionPrimaryLightBrush}"
+                                CornerRadius="12">
+                            <TextBlock FontSize="12"
+                                       Foreground="{StaticResource MotionBrush.Primary}"
+                                       Text="{Binding Axes.Count, StringFormat={}{0} 个轴}" />
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource MotionSecondaryButton}"
+                                    Command="{Binding LoadCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="17"
+                                          Height="17"
+                                          Margin="0,0,8,0"
+                                          Stretch="Uniform"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="1.6"
+                                          Data="{StaticResource MotionIcon.Folder}" />
+                                    <TextBlock VerticalAlignment="Center" Text="加载" />
+                                </StackPanel>
+                            </Button>
+                            <Button Margin="0"
+                                    Style="{StaticResource MotionPrimaryButton}"
+                                    Command="{Binding SaveCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="17"
+                                          Height="17"
+                                          Margin="0,0,8,0"
+                                          Stretch="Uniform"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="1.6"
+                                          Data="{StaticResource MotionIcon.Save}" />
+                                    <TextBlock VerticalAlignment="Center" Text="保存配置" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Border Width="1"
+                                Height="24"
+                                Margin="12,0"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource MotionBorderBrush}" />
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource MotionSecondaryButton}"
+                                    Command="{Binding ImportCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="17"
+                                          Height="17"
+                                          Margin="0,0,8,0"
+                                          Stretch="Uniform"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="1.6"
+                                          Data="{StaticResource MotionIcon.Import}" />
+                                    <TextBlock VerticalAlignment="Center" Text="导入" />
+                                </StackPanel>
+                            </Button>
+                            <Button Margin="0"
+                                    Style="{StaticResource MotionSecondaryButton}"
+                                    Command="{Binding ExportCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Width="17"
+                                          Height="17"
+                                          Margin="0,0,8,0"
+                                          Stretch="Uniform"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          StrokeThickness="1.6"
+                                          Data="{StaticResource MotionIcon.Export}" />
+                                    <TextBlock VerticalAlignment="Center" Text="导出" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Border Width="1"
+                                Height="24"
+                                Margin="12,0"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource MotionBorderBrush}" />
+
+                        <Button Margin="0"
+                                Style="{StaticResource MotionSecondaryButton}"
+                                Command="{Binding RefreshCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="17"
+                                      Height="17"
+                                      Margin="0,0,8,0"
+                                      Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.6"
+                                      Data="{StaticResource MotionIcon.Refresh}" />
+                                <TextBlock VerticalAlignment="Center" Text="刷新" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </Grid>
+            </Border>
 
-                <StackPanel Grid.Column="4" Orientation="Horizontal">
-                    <Button Style="{StaticResource MotionReferenceActionButton}" Command="{Binding AddAxisCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Width="16" Height="16" Margin="0,0,8,0" Stretch="Uniform"
-                                  Stroke="{StaticResource MotionReferenceBlueBrush}" StrokeThickness="1.8"
-                                  Data="{StaticResource MotionIcon.Add}" />
-                            <TextBlock VerticalAlignment="Center" Text="添加轴" />
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource MotionReferenceActionButton}" Margin="0" Command="{Binding DeleteAxisCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Width="16" Height="16" Margin="0,0,8,0" Stretch="Uniform"
-                                  Stroke="{StaticResource MotionDangerBrush}" StrokeThickness="1.6"
-                                  Data="{StaticResource MotionIcon.Delete}" />
-                            <TextBlock VerticalAlignment="Center" Text="删除轴" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
-            </Grid>
+            <Border Grid.Row="1"
+                    Background="#FFFAFAFA"
+                    BorderBrush="#FFF0F0F0"
+                    BorderThickness="0,0,0,1">
+                <Grid Margin="24,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="280" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-            <DataGrid x:Name="AxisGrid" Grid.Row="1" Margin="14,0,14,14"
-                      Style="{StaticResource MotionDataGridStyle}"
+                    <Grid>
+                        <TextBox Margin="0"
+                                 Padding="32,0,10,0"
+                                 Style="{StaticResource MotionInputStyle}"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                        <Path Width="15"
+                              Height="15"
+                              Margin="10,0,0,0"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"
+                              IsHitTestVisible="False"
+                              Stretch="Uniform"
+                              Stroke="#FF8A96A8"
+                              StrokeThickness="1.6"
+                              Data="{StaticResource MotionIcon.Search}" />
+                        <TextBlock Margin="32,0,10,0"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"
+                                   Foreground="#FF8A96A8"
+                                   Text="搜索轴名称、类型或编号...">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchText}" Value="">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Button MinWidth="96"
+                                Margin="0,0,8,0"
+                                Style="{StaticResource MotionPrimaryButton}"
+                                Command="{Binding AddAxisCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="16"
+                                      Height="16"
+                                      Margin="0,0,8,0"
+                                      Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.8"
+                                      Data="{StaticResource MotionIcon.Add}" />
+                                <TextBlock VerticalAlignment="Center" Text="添加轴" />
+                            </StackPanel>
+                        </Button>
+                        <Button Margin="0"
+                                Style="{StaticResource MotionDangerOutlineButton}"
+                                Command="{Binding DeleteAxisCommand}"
+                                IsEnabled="{Binding HasSelection}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="16"
+                                      Height="16"
+                                      Margin="0,0,8,0"
+                                      Stretch="Uniform"
+                                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      StrokeThickness="1.6"
+                                      Data="{StaticResource MotionIcon.Delete}" />
+                                <TextBlock VerticalAlignment="Center" Text="删除轴" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <DataGrid x:Name="AxisGrid" Grid.Row="2" Margin="24,0"
+                      Style="{StaticResource MotionAxisDataGridStyle}"
                       ItemsSource="{Binding AxesView}"
                       SelectedItem="{Binding SelectedAxis}"
                       AutoGenerateColumns="False"
-                      FrozenColumnCount="0"
+                      FrozenColumnCount="3"
                       CanUserAddRows="False"
                       CanUserDeleteRows="False"
                       CanUserReorderColumns="False"
@@ -188,6 +347,9 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
+
+            <controls:ConfigurationStatusBar Grid.Row="3"
+                                             Margin="24,0,24,14" />
         </Grid>
     </Border>
 </UserControl>

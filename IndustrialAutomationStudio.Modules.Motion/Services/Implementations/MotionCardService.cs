@@ -116,6 +116,15 @@ public sealed class MotionCardService : IMotionCardService
         CancellationToken cancellationToken = default) =>
         RequireDriver().ReadAxisStatesAsync(addresses, cancellationToken);
 
+    public Task SetServoEnabledAsync(
+        AxisAddress address,
+        bool enabled,
+        CancellationToken cancellationToken = default) =>
+        ExecuteMotionAsync(
+            enabled ? "轴使能" : "轴去使能",
+            $"轴 {address.CardNo}:{address.AxisNo}",
+            () => RequireDriver().SetServoEnabledAsync(address, enabled, cancellationToken));
+
     public Task StartJogAsync(
         AxisAddress address,
         double velocityPulsesPerSecond,

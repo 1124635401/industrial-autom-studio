@@ -55,10 +55,10 @@
     <sys:Double x:Key="MotionAxisParameterMinWidth">840</sys:Double>
     <sys:Double x:Key="MotionAxisParameterMinHeight">580</sys:Double>
     <GridLength x:Key="MotionAxisTableHeight">220</GridLength>
-    <GridLength x:Key="MotionAxisHeaderHeight">60</GridLength>
+    <GridLength x:Key="MotionAxisHeaderHeight">64</GridLength>
     <GridLength x:Key="MotionAxisCardHeaderHeight">50</GridLength>
     <GridLength x:Key="MotionAxisListWidth">280</GridLength>
-    <GridLength x:Key="MotionAxisStatusHeight">48</GridLength>
+    <GridLength x:Key="MotionAxisStatusHeight">44</GridLength>
     <Visibility x:Key="MotionPageHeaderVisibility">Visible</Visibility>
 
     <converters:EqualityConverter x:Key="MotionEqualityConverter" />
@@ -428,6 +428,23 @@
         <Setter Property="SnapsToDevicePixels" Value="True" />
     </Style>
 
+    <Style x:Key="MotionWorkspaceCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="#FFF0F0F0" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="20"
+                                  Direction="270"
+                                  Opacity="0.08"
+                                  ShadowDepth="4"
+                                  Color="#FF000000" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="MotionIoSectionCardStyle"
            TargetType="Border"
            BasedOn="{StaticResource MotionCardStyle}">
@@ -545,7 +562,27 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Background" Value="White" />
         <Setter Property="BorderBrush" Value="{StaticResource MotionBorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource MotionValidationErrorTemplate}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                 <Setter Property="BorderBrush" Value="{StaticResource MotionBrush.Primary}" />
@@ -751,7 +788,7 @@
         <Setter Property="Padding" Value="13,0" />
         <Setter Property="Foreground" Value="{StaticResource MotionTextPrimaryBrush}" />
         <Setter Property="Background" Value="White" />
-        <Setter Property="BorderBrush" Value="{StaticResource MotionReferenceBorderBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MotionBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
@@ -759,7 +796,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome" Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            CornerRadius="6" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
@@ -772,6 +809,83 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.48" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotionReferencePrimaryButton" TargetType="Button">
+        <Setter Property="Height" Value="{DynamicResource MotionAxisToolbarButtonHeight}" />
+        <Setter Property="MinWidth" Value="108" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="{StaticResource MotionBrush.Primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MotionBrush.Primary}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="#FF2F7DE8" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF2F7DE8" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="#FF0957C8" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF0957C8" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.48" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotionReferenceDangerButton" TargetType="Button">
+        <Setter Property="Height" Value="{DynamicResource MotionAxisActionButtonHeight}" />
+        <Setter Property="MinWidth" Value="96" />
+        <Setter Property="Padding" Value="12,0" />
+        <Setter Property="Foreground" Value="{StaticResource MotionDangerBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource MotionDangerLightBrush}" />
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#FFFFB4B5" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="#FFFFDEDE" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.4" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -933,6 +1047,9 @@
                 <Style TargetType="DataGridRow">
                     <Setter Property="BorderThickness" Value="0" />
                     <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#FFF7FAFF" />
+                        </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" Value="{StaticResource MotionReferenceBlueLightBrush}" />
                         </Trigger>

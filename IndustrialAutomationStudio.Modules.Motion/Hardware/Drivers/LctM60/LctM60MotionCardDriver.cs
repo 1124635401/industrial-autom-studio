@@ -300,6 +300,31 @@ public sealed class LctM60MotionCardDriver : IMotionCardDriver
         }
     }
 
+    public async Task SetServoEnabledAsync(
+        AxisAddress address,
+        bool enabled,
+        CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            EnsureConnected("SetServoEnabled");
+            var axisNo = ValidateAddress(address, "SetServoEnabled");
+            if (enabled)
+            {
+                Invoke("M_Servo_On", () => _native.ServoOn(axisNo, CardNumber));
+            }
+            else
+            {
+                Invoke("M_Servo_Off", () => _native.ServoOff(axisNo, CardNumber));
+            }
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     public async Task MoveAbsoluteAsync(
         AxisPulseTarget target,
         double velocityPulsesPerSecond,

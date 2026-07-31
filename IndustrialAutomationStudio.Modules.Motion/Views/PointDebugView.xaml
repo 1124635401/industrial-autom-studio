@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:controls="clr-namespace:IndustrialAutomationStudio.Modules.Motion.Views.Controls"
-             xmlns:multiAxis="clr-namespace:IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis"
              prism:ViewModelLocator.AutoWireViewModel="True"
              Background="Transparent"
              Loaded="PointDebugView_OnLoaded"
@@ -11,654 +10,370 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-        <Style x:Key="PointJogButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="72" />
-            <Setter Property="Height" Value="54" />
-            <Setter Property="Margin" Value="4" />
-            <Setter Property="Padding" Value="6,3" />
+        <Style x:Key="PointDebugAxisCardHostStyle" TargetType="controls:AxisControlCard">
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+                <Trigger Property="DataContext" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PointDebugToolbarButtonStyle" TargetType="Button"
+               BasedOn="{StaticResource MotionSecondaryButton}">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="MinWidth" Value="46" />
+            <Setter Property="Margin" Value="5,0,0,0" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="FontSize" Value="11" />
+        </Style>
+
+        <Style x:Key="PointDebugInnerCardStyle" TargetType="Border">
             <Setter Property="Background" Value="White" />
-            <Setter Property="Foreground" Value="{StaticResource MotionTextPrimaryBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource MotionBorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Effect" Value="{x:Null}" />
+        </Style>
+
+        <Style x:Key="PointDebugPointItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="0,0,0,9" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource MotionBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Chrome"
-                                Padding="{TemplateBinding Padding}"
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Chrome" Padding="11"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                                CornerRadius="9">
+                            <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#FFF8FAFD" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="#FFFAFDFF" />
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF91CAFF" />
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsRunning}" Value="True">
                                 <Setter TargetName="Chrome" Property="Background"
                                         Value="{StaticResource MotionPrimaryLightBrush}" />
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#FF91BAF4" />
-                                <Setter Property="Foreground" Value="{StaticResource MotionBrush.Primary}" />
-                            </Trigger>
-                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter TargetName="Chrome" Property="Background"
-                                        Value="{StaticResource MotionBrush.Primary}" />
-                                <Setter TargetName="Chrome" Property="BorderBrush"
-                                        Value="{StaticResource MotionBrush.Primary}" />
-                                <Setter Property="Foreground" Value="White" />
                             </DataTrigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.42" />
-                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <DataTemplate x:Key="DirectionButtonTemplate">
-            <Button PreviewMouseLeftButtonDown="DirectionButton_OnPreviewMouseLeftButtonDown"
-                    PreviewMouseLeftButtonUp="DirectionButton_OnPreviewMouseLeftButtonUp"
-                    LostMouseCapture="DirectionButton_OnLostMouseCapture">
-                <Button.Style>
-                    <Style TargetType="Button"
-                           BasedOn="{StaticResource PointJogButtonStyle}">
-                        <Setter Property="IsEnabled" Value="True" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsInteractionEnabled,
-                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                         Value="False">
-                                <Setter Property="IsEnabled" Value="False" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="IsEnabled" Value="True" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <StackPanel>
-                    <TextBlock HorizontalAlignment="Center"
-                               FontFamily="Segoe UI Symbol" FontSize="18"
-                               Foreground="{Binding Foreground,
-                                            RelativeSource={RelativeSource AncestorType=Button}}"
-                               Text="{Binding Symbol}" />
-                    <TextBlock Margin="0,1,0,0" HorizontalAlignment="Center"
-                               FontSize="13" FontWeight="SemiBold"
-                               Foreground="{Binding Foreground,
-                                            RelativeSource={RelativeSource AncestorType=Button}}"
-                               Text="{Binding Label}" />
-                </StackPanel>
-            </Button>
-        </DataTemplate>
-
-        <DataTemplate x:Key="PlanarPointJogTemplate">
-            <Grid Width="240" Height="186" HorizontalAlignment="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="62" />
-                    <RowDefinition Height="62" />
-                    <RowDefinition Height="62" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80" />
-                    <ColumnDefinition Width="80" />
-                    <ColumnDefinition Width="80" />
-                </Grid.ColumnDefinitions>
-                <ContentControl Grid.Row="0" Grid.Column="1"
-                                Content="{Binding Directions[0]}"
-                                ContentTemplate="{StaticResource DirectionButtonTemplate}" />
-                <ContentControl Grid.Row="1" Grid.Column="0"
-                                Content="{Binding Directions[1]}"
-                                ContentTemplate="{StaticResource DirectionButtonTemplate}" />
-                <Grid Grid.Row="1" Grid.Column="1" Width="32" Height="32"
-                      HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Ellipse Stroke="{StaticResource MotionTextSecondaryBrush}"
-                             StrokeThickness="1.2" />
-                    <Ellipse Width="7" Height="7"
-                             Fill="{StaticResource MotionPrimaryLightBrush}"
-                             Stroke="{StaticResource MotionTextSecondaryBrush}" />
-                </Grid>
-                <ContentControl Grid.Row="1" Grid.Column="2"
-                                Content="{Binding Directions[2]}"
-                                ContentTemplate="{StaticResource DirectionButtonTemplate}" />
-                <ContentControl Grid.Row="2" Grid.Column="1"
-                                Content="{Binding Directions[3]}"
-                                ContentTemplate="{StaticResource DirectionButtonTemplate}" />
-            </Grid>
-        </DataTemplate>
-
-        <DataTemplate x:Key="LinearPointJogTemplate">
-            <ItemsControl ItemsSource="{Binding Directions}"
-                          ItemTemplate="{StaticResource DirectionButtonTemplate}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </DataTemplate>
-
-        <DataTemplate x:Key="HorizontalPointJogTemplate">
-            <ItemsControl ItemsSource="{Binding Directions}"
-                          ItemTemplate="{StaticResource DirectionButtonTemplate}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-        </DataTemplate>
-
-        <DataTemplate x:Key="PointJogModuleTemplate">
-            <Border Margin="3" Padding="5" Background="Transparent">
+        <DataTemplate x:Key="PointDebugAxisValueTemplate">
+            <Border Height="31" Margin="0,0,6,6" Padding="8,0"
+                    Background="{StaticResource MotionReferencePageBrush}"
+                    BorderBrush="#FFE9EDF2" BorderThickness="1" CornerRadius="7">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock HorizontalAlignment="Center" FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource MotionTextSecondaryBrush}"
-                               Text="{Binding Title}" />
-                    <ContentControl Grid.Row="1" Margin="0,3,0,0"
-                                     HorizontalAlignment="Center"
-                                     Content="{Binding}">
-                        <ContentControl.Style>
-                            <Style TargetType="ContentControl">
-                                <Setter Property="ContentTemplate"
-                                        Value="{StaticResource LinearPointJogTemplate}" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Kind}"
-                                                 Value="{x:Static multiAxis:JogModuleKind.Planar}">
-                                        <Setter Property="ContentTemplate"
-                                                Value="{StaticResource PlanarPointJogTemplate}" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Kind}"
-                                                 Value="{x:Static multiAxis:JogModuleKind.LinearHorizontal}">
-                                        <Setter Property="ContentTemplate"
-                                                Value="{StaticResource HorizontalPointJogTemplate}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ContentControl.Style>
-                    </ContentControl>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{StaticResource MotionBrush.Primary}" Text="{Binding AxisLabel}" />
+                    <Grid Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditing,
+                                            RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock FontFamily="Consolas" FontSize="11"
+                                       Text="{Binding Position, StringFormat={}{0:F3}}" />
+                            <TextBlock Margin="3,0,0,0" FontSize="8"
+                                       Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                       Text="{Binding Unit}" />
+                        </StackPanel>
+                        <TextBox Height="25" HorizontalContentAlignment="Right"
+                                 VerticalContentAlignment="Center"
+                                 Text="{Binding PositionText, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource MotionReferenceInputStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsEditing,
+                                            RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </Grid>
                 </Grid>
             </Border>
-        </DataTemplate>
-
-        <DataTemplate x:Key="PositionReadoutTemplate">
-            <Border x:Name="PositionCapsule"
-                    Margin="0,0,6,0" Padding="9,2"
-                    Background="White"
-                    BorderBrush="{StaticResource MotionBorderBrush}"
-                    BorderThickness="1" CornerRadius="12">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"
-                               Foreground="{StaticResource MotionBrush.Primary}"
-                               Text="{Binding AxisLabel}" />
-                    <TextBlock Margin="7,0,4,0" VerticalAlignment="Center"
-                               FontFamily="Consolas" FontSize="17"
-                               Foreground="{StaticResource MotionTextPrimaryBrush}"
-                               Text="{Binding Position, StringFormat={}{0:F3}}" />
-                    <TextBlock VerticalAlignment="Center" FontSize="12"
-                               Foreground="{StaticResource MotionTextSecondaryBrush}"
-                               Text="{Binding Unit}" />
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-
-        <DataTemplate x:Key="PointAxisCellTemplate">
-            <Grid Width="86" Margin="2,0">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontFamily="Consolas" FontSize="13"
-                           Text="{Binding Position, StringFormat={}{0:F3}}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Visible" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding DataContext.IsEditing,
-                                            RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
-                                             Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBox HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                         Text="{Binding PositionText, UpdateSourceTrigger=PropertyChanged}">
-                    <TextBox.Style>
-                        <Style TargetType="TextBox">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding DataContext.IsEditing,
-                                            RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
-                                             Value="True">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBox.Style>
-                </TextBox>
-            </Grid>
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid x:Name="PointDebugRoot">
+        <Border x:Name="PointDebugPageContainer"
+                Background="White"
+                BorderBrush="{StaticResource MotionBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="14"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="56" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-        <Grid Margin="0,0,0,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="270" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Visibility="{DynamicResource MotionPageHeaderVisibility}">
-                <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="点位调试" />
-                <TextBlock Margin="0,5,0,0" FontSize="13"
-                           Foreground="{StaticResource MotionTextSecondaryBrush}"
-                           Text="Jog 微调、记录当前位置并立即执行分组定位" />
-            </StackPanel>
-            <TextBlock Grid.Column="1" Margin="0,0,10,0"
-                       VerticalAlignment="Center"
-                       Style="{StaticResource MotionFieldLabelStyle}"
-                       Text="当前分组" />
-            <ComboBox Grid.Column="2" Height="38" Padding="12,0"
-                      Style="{StaticResource MotionComboBoxStyle}"
-                      ItemsSource="{Binding Groups}"
-                      SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
-                      DisplayMemberPath="Name"
-                      IsEnabled="{Binding IsInteractionEnabled}" />
-            <Border Grid.Column="3" Margin="12,0" Padding="10,5"
-                    VerticalAlignment="Center"
-                    Background="{StaticResource MotionPrimaryLightBrush}"
-                    CornerRadius="12">
-                <TextBlock Foreground="{StaticResource MotionBrush.Primary}">
-                    <Run FontWeight="SemiBold"
-                         Text="{Binding SelectedAxisCount, Mode=OneWay}" />
-                    <Run Text=" 轴" />
-                </TextBlock>
-            </Border>
-            <Border Grid.Column="4" Margin="0,0,12,0" Padding="10,5"
-                    VerticalAlignment="Center"
-                    Background="{StaticResource MotionReferencePageBrush}"
-                    CornerRadius="12">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Foreground="{StaticResource MotionTextSecondaryBrush}"
-                               Text="{Binding ConnectionStateText}" />
-                    <Border Width="1" Height="14" Margin="8,0"
-                            Background="{StaticResource MotionBorderBrush}" />
-                    <TextBlock Foreground="{StaticResource MotionTextSecondaryBrush}"
-                               Text="{Binding MotionStateText}" />
-                </StackPanel>
-            </Border>
-            <Button Grid.Column="5" MinWidth="104" Height="38"
-                    Style="{StaticResource MotionDangerOutlineButton}"
-                    Command="{Binding StopGroupCommand}"
-                    Content="停止" />
-        </Grid>
+                <Border x:Name="CurrentGroupToolbar"
+                        Padding="24,0"
+                        Background="White"
+                        BorderBrush="#FFF0F0F0"
+                        BorderThickness="0,0,0,1"
+                        CornerRadius="13,13,0,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Margin="0,0,10,0" VerticalAlignment="Center"
+                                   FontSize="13" FontWeight="SemiBold" Text="当前分组" />
+                        <ComboBox Width="230" Height="36" Padding="12,0"
+                                  Style="{StaticResource MotionComboBoxStyle}"
+                                  ItemsSource="{Binding Groups}"
+                                  SelectedItem="{Binding SelectedGroup, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"
+                                  IsEnabled="{Binding IsInteractionEnabled}" />
+                        <Border Margin="8,0,0,0" Padding="10,4" VerticalAlignment="Center"
+                                Background="{StaticResource MotionPrimaryLightBrush}" CornerRadius="12">
+                            <TextBlock Foreground="{StaticResource MotionBrush.Primary}">
+                                <Run FontWeight="SemiBold"
+                                     Text="{Binding SelectedAxisCount, Mode=OneWay}" />
+                                <Run Text=" 轴" />
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
 
-        <Grid Grid.Row="1">
+                <Border x:Name="PointDebugContentSurface"
+                        Grid.Row="1"
+                        Padding="16"
+                        Background="#FFF7F9FC"
+                        CornerRadius="0,0,13,13">
+                    <Grid x:Name="PointDebugWorkspace">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5*" MinWidth="410" MaxWidth="610" />
-                <ColumnDefinition Width="14" />
-                <ColumnDefinition Width="9*" MinWidth="600" />
+                <ColumnDefinition Width="*" MinWidth="720" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="414" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Padding="14"
-                    Style="{StaticResource MotionCardStyle}">
+            <Border Grid.Column="0" Style="{StaticResource PointDebugInnerCardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="54" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-
-                    <Grid Margin="2,0,2,0">
-                        <TextBlock VerticalAlignment="Center" FontSize="17"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource MotionTextPrimaryBrush}"
-                                   Text="Jog 控制" />
-                    </Grid>
-
-                    <Border Grid.Row="1" Height="44" Margin="2,7,2,10" Padding="10,0"
-                            Background="{StaticResource MotionReferencePageBrush}"
-                            BorderBrush="{StaticResource MotionBorderBrush}"
-                            BorderThickness="1" CornerRadius="8">
-                        <ScrollViewer VerticalAlignment="Center"
-                                      HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Disabled">
-                            <ItemsControl ItemsSource="{Binding PositionReadouts}"
-                                          ItemTemplate="{StaticResource PositionReadoutTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </ScrollViewer>
+                    <Border Padding="18,0" BorderBrush="#FFF0F0F0"
+                            BorderThickness="0,0,0,1" CornerRadius="11,11,0,0">
+                        <TextBlock VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{StaticResource MotionTextPrimaryBrush}" Text="运动控制" />
                     </Border>
 
-                    <Border Grid.Row="2" Padding="5"
-                            Background="{StaticResource MotionReferencePageBrush}"
-                            BorderBrush="{StaticResource MotionBorderBrush}"
-                            BorderThickness="1" CornerRadius="10">
-                        <ScrollViewer x:Name="JogSurfaceScrollViewer"
-                                      VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled">
-                            <controls:JogControlSurface
-                                AxisCount="{Binding SelectedAxisCount, Mode=OneWay}"
-                                CenterModules="{Binding CenterModules}"
-                                LinearModules="{Binding LinearModules}"
-                                RotaryModules="{Binding RotaryModules}"
-                                AuxiliaryModules="{Binding AuxiliaryModules}"
-                                IsInteractionEnabled="{Binding IsInteractionEnabled}"
-                                StartCommand="{Binding StartJogCommand}"
-                                StopCommand="{Binding StopJogCommand}"
-                                Density="Compact" />
+                    <Border Grid.Row="1" Background="#FFFBFCFE" CornerRadius="0,0,11,11">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Auto">
+                            <Grid Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <controls:AxisControlCard Grid.Row="0" Grid.Column="1" Margin="0,0,0,16"
+                                                          Style="{StaticResource PointDebugAxisCardHostStyle}"
+                                                          DataContext="{Binding YAxisCard}" />
+                                <controls:AxisControlCard Grid.Row="1" Grid.Column="0" Margin="0,0,16,0"
+                                                          Style="{StaticResource PointDebugAxisCardHostStyle}"
+                                                          DataContext="{Binding XAxisCard}" />
+                                <controls:PointDebugJogPad Grid.Row="1" Grid.Column="1"
+                                                           JogPad="{Binding JogPad}"
+                                                           IsInteractionEnabled="{Binding IsInteractionEnabled}"
+                                                           StartCommand="{Binding StartJogCommand}"
+                                                           StopCommand="{Binding StopJogCommand}"
+                                                           StopAllCommand="{Binding StopGroupCommand}" />
+                                <controls:AxisControlCard Grid.Row="1" Grid.Column="2" Margin="16,0,0,0"
+                                                          Style="{StaticResource PointDebugAxisCardHostStyle}"
+                                                          DataContext="{Binding ZAxisCard}" />
+                                <controls:AxisControlCard Grid.Row="2" Grid.Column="1" Margin="0,16,0,0"
+                                                          Style="{StaticResource PointDebugAxisCardHostStyle}"
+                                                          DataContext="{Binding RAxisCard}" />
+                            </Grid>
                         </ScrollViewer>
                     </Border>
-
-                    <Grid Grid.Row="3" Margin="2,12,2,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="110" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Margin="0,0,10,0" VerticalAlignment="Center"
-                                   Style="{StaticResource MotionFieldLabelStyle}"
-                                   Text="Jog 速度" />
-                        <TextBox Grid.Column="1" Height="34"
-                                  Style="{StaticResource MotionReferenceInputStyle}"
-                                  VerticalContentAlignment="Center"
-                                 Text="{Binding JogSpeed, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock Grid.Column="2" Margin="10,0,0,0"
-                                   VerticalAlignment="Center"
-                                   Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                   Text="工程单位 / s · 按住移动，松开停止" />
-                    </Grid>
                 </Grid>
             </Border>
 
-            <Border Grid.Column="2" Padding="14"
-                    Style="{StaticResource MotionCardStyle}">
+            <Border Grid.Column="2" Style="{StaticResource PointDebugInnerCardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="54" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="44" />
                     </Grid.RowDefinitions>
-                    <Grid Margin="2,0,2,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock VerticalAlignment="Center" FontSize="17"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource MotionTextPrimaryBrush}"
-                                   Text="点位列表" />
-                        <Button Grid.Column="1" Height="38" Padding="16,0"
-                                Style="{StaticResource MotionPrimaryButton}"
-                                Command="{Binding RecordCurrentPositionCommand}"
-                                Content="+  记录当前位置" />
-                    </Grid>
 
-                    <ScrollViewer Grid.Row="1" Grid.RowSpan="2"
-                                  HorizontalScrollBarVisibility="Auto"
-                                  VerticalScrollBarVisibility="Disabled">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Padding="10,9"
-                            Background="{StaticResource MotionReferencePageBrush}"
-                            BorderBrush="{StaticResource MotionBorderBrush}"
-                            BorderThickness="1" CornerRadius="8,8,0,0">
+                    <Border Padding="18,0" BorderBrush="#FFF0F0F0"
+                            BorderThickness="0,0,0,1" CornerRadius="11,11,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="76" />
-                                <ColumnDefinition Width="88" />
-                                <ColumnDefinition Width="190" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="点位名称" />
-                            <ItemsControl Grid.Column="1" HorizontalAlignment="Center"
-                                          ItemsSource="{Binding PositionReadouts}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Width="86" HorizontalAlignment="Center"
-                                                   TextAlignment="Center"
-                                                   Text="{Binding AxisLabel}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Grid.Column="2" HorizontalAlignment="Center"
-                                       Text="速度" />
-                            <TextBlock Grid.Column="3" HorizontalAlignment="Center"
-                                       Text="状态" />
-                            <TextBlock Grid.Column="4" HorizontalAlignment="Center"
-                                       Text="操作" />
+                            <TextBlock VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="{StaticResource MotionTextPrimaryBrush}" Text="点位列表" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Style="{StaticResource MotionPrimaryButton}"
+                                        Height="32" MinWidth="54" Margin="0" Padding="10,0"
+                                        FontSize="11" Command="{Binding RecordCurrentPositionCommand}"
+                                        Content="＋ 新增" />
+                                <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
+                                        Command="{Binding BeginEditPointCommand}"
+                                        CommandParameter="{Binding SelectedPoint}" Content="编辑" />
+                                <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
+                                        Command="{Binding SavePointCommand}"
+                                        CommandParameter="{Binding SelectedPoint}" Content="保存" />
+                                <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
+                                        Foreground="{StaticResource MotionDangerBrush}"
+                                        BorderBrush="#FFF0B8B8"
+                                        Command="{Binding DeletePointCommand}"
+                                        CommandParameter="{Binding SelectedPoint}" Content="删除" />
+                            </StackPanel>
                         </Grid>
                     </Border>
 
-                    <ListBox Grid.Row="1" BorderThickness="1,0,1,1"
-                             BorderBrush="{StaticResource MotionBorderBrush}"
+                    <ListBox Grid.Row="1" Margin="10" Padding="0"
+                             Background="#FFFBFCFE" BorderThickness="0"
                              ItemsSource="{Binding Points}"
+                             SelectedItem="{Binding SelectedPoint, Mode=TwoWay}"
+                             ItemContainerStyle="{StaticResource PointDebugPointItemStyle}"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             HorizontalContentAlignment="Stretch">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                <Setter Property="Padding" Value="10,9" />
-                                <Setter Property="BorderBrush"
-                                        Value="{StaticResource MotionBorderBrush}" />
-                                <Setter Property="BorderThickness" Value="0,0,0,1" />
-                                <Setter Property="Background" Value="White" />
-                                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#FFF8FAFD" />
-                                    </Trigger>
-                                    <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                                        <Setter Property="Background"
-                                                Value="{StaticResource MotionPrimaryLightBrush}" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid MinHeight="38">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="76" />
-                                        <ColumnDefinition Width="88" />
-                                        <ColumnDefinition Width="190" />
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Visible" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBox VerticalContentAlignment="Center"
-                                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}">
-                                        <TextBox.Style>
-                                            <Style TargetType="TextBox">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="32" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="32" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="82" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid>
+                                            <TextBlock VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                                                       Text="{Binding Name}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
                                                         <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBox.Style>
-                                    </TextBox>
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsEditing}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBox Height="28" VerticalContentAlignment="Center"
+                                                     Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox" BasedOn="{StaticResource MotionReferenceInputStyle}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsEditing}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                        </Grid>
+                                        <Border Grid.Column="1" Margin="6,0" Padding="7,3"
+                                                Background="{StaticResource MotionReferencePageBrush}" CornerRadius="10">
+                                            <TextBlock FontSize="9" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                                       Text="{Binding StatusText}" />
+                                        </Border>
+                                        <Grid Grid.Column="2">
+                                            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                       FontSize="9" Foreground="{StaticResource MotionTextSecondaryBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock"><Setter Property="Visibility" Value="Visible" /><Style.Triggers><DataTrigger Binding="{Binding IsEditing}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style>
+                                                </TextBlock.Style>
+                                                <Run Text="速度 " /><Run Text="{Binding Speed, StringFormat={}{0:G}}" />
+                                            </TextBlock>
+                                            <TextBox Height="28" HorizontalContentAlignment="Right"
+                                                     VerticalContentAlignment="Center"
+                                                     Text="{Binding SpeedText, UpdateSourceTrigger=PropertyChanged}">
+                                                <TextBox.Style>
+                                                    <Style TargetType="TextBox" BasedOn="{StaticResource MotionReferenceInputStyle}">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers><DataTrigger Binding="{Binding IsEditing}" Value="True"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                                                    </Style>
+                                                </TextBox.Style>
+                                            </TextBox>
+                                        </Grid>
+                                    </Grid>
 
-                                    <ItemsControl Grid.Column="1"
-                                                  HorizontalAlignment="Center"
+                                    <ItemsControl Grid.Row="1" Margin="0,7,0,1"
                                                   ItemsSource="{Binding AxisCells}"
-                                                  ItemTemplate="{StaticResource PointAxisCellTemplate}">
+                                                  ItemTemplate="{StaticResource PointDebugAxisValueTemplate}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal" />
+                                                <UniformGrid Columns="2" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                     </ItemsControl>
 
-                                    <Grid Grid.Column="2" Margin="5,0">
-                                        <TextBlock HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Text="{Binding Speed, StringFormat={}{0:G}}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <TextBox HorizontalContentAlignment="Center"
-                                                 VerticalContentAlignment="Center"
-                                                 Text="{Binding SpeedText,
-                                                    UpdateSourceTrigger=PropertyChanged}">
-                                            <TextBox.Style>
-                                                <Style TargetType="TextBox">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBox.Style>
-                                        </TextBox>
-                                    </Grid>
-
-                                    <TextBlock Grid.Column="3" HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                               Text="{Binding StatusText}" />
-
-                                    <StackPanel Grid.Column="4" HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Orientation="Horizontal">
-                                        <Button MinWidth="58" Height="30" Padding="10,0"
+                                    <Grid Grid.Row="2">
+                                        <Button Width="60" Height="28" HorizontalAlignment="Left"
+                                                Style="{StaticResource MotionPrimaryButton}"
                                                 Command="{Binding DataContext.LocatePointCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                Content="定位">
-                                            <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource MotionPrimaryButton}">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                        <Button Margin="5,0,0,0" Padding="7,0"
-                                                Background="Transparent" BorderThickness="0"
-                                                Foreground="{StaticResource MotionBrush.Primary}"
-                                                Command="{Binding DataContext.BeginEditPointCommand,
-                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}" Content="编辑">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                        <Button Padding="7,0" Background="Transparent"
-                                                BorderThickness="0"
-                                                Foreground="{StaticResource MotionBrush.Primary}"
-                                                Command="{Binding DataContext.SavePointCommand,
-                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}" Content="保存">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                        <Button Padding="7,0" Background="Transparent"
-                                                BorderThickness="0"
-                                                Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                                Command="{Binding DataContext.CancelEditPointCommand,
-                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}" Content="取消">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                        <Button Padding="7,0" Background="Transparent"
-                                                BorderThickness="0" Foreground="#FFD9363E"
-                                                Command="{Binding DataContext.DeletePointCommand,
-                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}" Content="删除" />
-                                    </StackPanel>
+                                                CommandParameter="{Binding}" Content="定位" />
+                                        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   FontSize="8" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                                   Text="当前分组点位" />
+                                    </Grid>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                        </Grid>
-                    </ScrollViewer>
 
-                    <Border Grid.Row="3" Margin="0,12,0,0" Padding="10,8"
-                            Background="{StaticResource MotionReferencePageBrush}"
-                            CornerRadius="7">
-                        <TextBlock Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                   Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+                    <Border Grid.Row="2" Padding="13,0" Background="{StaticResource MotionReferencePageBrush}"
+                            BorderBrush="#FFF0F0F0" BorderThickness="0,1,0,0"
+                            CornerRadius="0,0,11,11">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse Width="7" Height="7" Margin="0,0,7,0"
+                                     Fill="{StaticResource MotionBrush.Success}" />
+                            <TextBlock VerticalAlignment="Center" FontSize="10"
+                                       Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                       Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Border>
-        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

@@ -9,9 +9,11 @@
                 <Path Width="18" Height="18" Margin="0,0,12,0" Stretch="Uniform"
                       Stroke="{StaticResource MotionBrush.Primary}" StrokeThickness="1.6"
                       Data="{StaticResource MotionIcon.Info}" />
-                <TextBlock VerticalAlignment="Center" FontSize="13"
-                           Foreground="{StaticResource MotionTextSecondaryBrush}"
-                           Text="{Binding StatusMessage}" />
+                <TextBlock VerticalAlignment="Center"
+                           FontSize="13"
+                           Foreground="{StaticResource MotionBrush.Primary}"
+                           Text="{Binding StatusMessage}"
+                           TextTrimming="CharacterEllipsis" />
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
