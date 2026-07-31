@@ -32,7 +32,7 @@
     <SolidColorBrush x:Key="ShellBrush.SuccessLight" Color="#FFECF9F2" />
     <SolidColorBrush x:Key="ShellBrush.TopBar" Color="#FFFBFCFE" />
     <SolidColorBrush x:Key="ShellBrush.TitleBar" Color="#FFFFFFFF" />
-    <SolidColorBrush x:Key="ShellBrush.TitleBarBorder" Color="#FFE7EBF2" />
+    <SolidColorBrush x:Key="ShellBrush.TitleBarBorder" Color="#FFF0F0F0" />
     <SolidColorBrush x:Key="ShellBrush.TitleBarLogoBackground" Color="#FFE6F4FF" />
     <SolidColorBrush x:Key="ShellBrush.TopNavForeground" Color="#FF4B5563" />
     <SolidColorBrush x:Key="ShellBrush.TopNavHover" Color="#FFF3F4F6" />
@@ -44,7 +44,7 @@
     <SolidColorBrush x:Key="ShellBrush.DisconnectedText" Color="#FF595959" />
     <SolidColorBrush x:Key="ShellBrush.HeaderDivider" Color="#FFE5E7EB" />
     <Thickness x:Key="ShellTopNavigationPadding">16,0,16,0</Thickness>
-    <Thickness x:Key="ShellTopNavigationMargin">0,0,8,0</Thickness>
+    <Thickness x:Key="ShellTopNavigationMargin">0,0,6,0</Thickness>
 
     <converters:ResourceKeyToGeometryConverter x:Key="ShellResourceKeyToGeometryConverter" />
 
@@ -82,7 +82,7 @@
                   Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                   StrokeThickness="1.5"
                   Data="{Binding IconKey, Converter={StaticResource ShellResourceKeyToGeometryConverter}}" />
-            <TextBlock Margin="6,0,0,0"
+            <TextBlock Margin="8,0,0,0"
                        VerticalAlignment="Center"
                        FontSize="14"
                        FontWeight="Medium"
@@ -90,7 +90,7 @@
             <Path x:Name="MenuChevron"
                   Width="10"
                   Height="6"
-                  Margin="6,1,0,0"
+                  Margin="2,1,0,0"
                   VerticalAlignment="Center"
                   Stretch="Uniform"
                   Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
@@ -107,7 +107,7 @@
     </DataTemplate>
 
     <Style x:Key="ShellTopNavigationButtonStyle" TargetType="Button">
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="Margin" Value="{DynamicResource ShellTopNavigationMargin}" />
         <Setter Property="Padding" Value="{DynamicResource ShellTopNavigationPadding}" />
         <Setter Property="Background" Value="Transparent" />
@@ -121,7 +121,7 @@
                     <Border x:Name="Chrome"
                             Padding="{TemplateBinding Padding}"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="18">
+                            CornerRadius="20">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center" />
                     </Border>
@@ -130,26 +130,21 @@
                             <Setter TargetName="Chrome"
                                     Property="Background"
                                     Value="{StaticResource ShellBrush.TopNavHover}" />
+                            <Setter Property="Foreground"
+                                    Value="{StaticResource ShellBrush.Primary}" />
                         </Trigger>
                         <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
                             <Setter TargetName="Chrome"
                                     Property="Background"
                                     Value="{StaticResource ShellBrush.TopNavHover}" />
+                            <Setter Property="Foreground"
+                                    Value="{StaticResource ShellBrush.Primary}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding IsActive}" Value="True">
                             <Setter TargetName="Chrome"
                                     Property="Background"
                                     Value="{StaticResource ShellBrush.Primary}" />
                             <Setter Property="Foreground" Value="White" />
-                            <Setter TargetName="Chrome" Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect BlurRadius="8"
-                                                      Direction="270"
-                                                      ShadowDepth="2"
-                                                      Opacity="0.18"
-                                                      Color="#1677FF" />
-                                </Setter.Value>
-                            </Setter>
                         </DataTrigger>
                         <MultiDataTrigger>
                             <MultiDataTrigger.Conditions>
@@ -295,11 +290,11 @@
     </Style>
 
     <Style x:Key="ShellConnectionStatusStyle" TargetType="Border">
-        <Setter Property="Padding" Value="10,4" />
+        <Setter Property="Padding" Value="12,4" />
         <Setter Property="Background" Value="{StaticResource ShellBrush.DisconnectedBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource ShellBrush.DisconnectedBorder}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="CornerRadius" Value="16" />
     </Style>
 
     <Style x:Key="ShellHeaderDividerStyle" TargetType="Border">
@@ -310,8 +305,8 @@
     </Style>
 
     <Style x:Key="ShellIconButtonStyle" TargetType="Button">
-        <Setter Property="Width" Value="36" />
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -323,7 +318,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="18">
+                            CornerRadius="16">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center" />
                     </Border>
@@ -341,11 +336,43 @@
         </Setter>
     </Style>
 
+    <Style x:Key="ShellUserAreaStyle" TargetType="Border">
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background"
+                        Value="{StaticResource ShellBrush.TopNavHover}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="ShellCaptionButtonStyle" TargetType="Button" BasedOn="{StaticResource ShellIconButtonStyle}">
-        <Setter Property="Width" Value="44" />
-        <Setter Property="Height" Value="63" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background"
+                        Value="{StaticResource ShellBrush.TopNavHover}" />
+                <Setter Property="Foreground"
+                        Value="{StaticResource ShellBrush.PrimaryText}" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="ShellCloseButtonStyle"
