@@ -4,5 +4,8 @@ namespace IndustrialAutomationStudio.Modules.Motion.Views.Controls;
 
 public partial class ConfigurationStatusBar : UserControl
 {
-    public ConfigurationStatusBar() => InitializeComponent();
+    public ConfigurationStatusBar()
+    {
+        InitializeComponent();
+    }
 }

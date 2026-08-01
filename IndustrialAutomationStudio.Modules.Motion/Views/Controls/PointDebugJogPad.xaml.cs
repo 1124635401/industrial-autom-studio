@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
+using IndustrialAutomationStudio.Modules.Motion.ViewModels.Jog;
 using IndustrialAutomationStudio.Modules.Motion.ViewModels.PointDebug;
 
 namespace IndustrialAutomationStudio.Modules.Motion.Views.Controls;

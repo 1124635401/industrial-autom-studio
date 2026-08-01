@@ -4,9 +4,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:controls="clr-namespace:IndustrialAutomationStudio.Modules.Motion.Views.Controls"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             Background="Transparent"
-             Loaded="PointDebugView_OnLoaded"
-             Unloaded="PointDebugView_OnUnloaded">
+             Background="Transparent">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
@@ -249,7 +247,7 @@
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                 <Button Style="{StaticResource MotionPrimaryButton}"
                                         Height="28" MinWidth="54" Margin="0" Padding="10,0"
-                                        FontSize="11" Command="{Binding RecordCurrentPositionCommand}"
+                                        FontSize="11" Command="{Binding AddPointCommand}"
                                         Content="＋ 新增" />
                                 <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
                                         Command="{Binding BeginEditPointCommand}"
@@ -257,6 +255,10 @@
                                 <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
                                         Command="{Binding SavePointCommand}"
                                         CommandParameter="{Binding SelectedPoint}" Content="保存" />
+                                <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
+                                        MinWidth="78"
+                                        Command="{Binding SaveCurrentPositionCommand}"
+                                        Content="保存当前位置" />
                                 <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
                                         Foreground="{StaticResource MotionDangerBrush}"
                                         BorderBrush="#FFF0B8B8"
@@ -307,9 +309,11 @@
                                                 </TextBox.Style>
                                             </TextBox>
                                         </Grid>
-                                        <Border Grid.Column="1" Margin="6,0" Padding="7,3"
-                                                Background="{StaticResource MotionReferencePageBrush}" CornerRadius="10">
+                                        <Border Grid.Column="1" Margin="6,0" Padding="8,2"
+                                                Background="{StaticResource MotionReferencePageBrush}" CornerRadius="10"
+                                                VerticalAlignment="Center">
                                             <TextBlock FontSize="9" Foreground="{StaticResource MotionTextSecondaryBrush}"
+                                                       VerticalAlignment="Center"
                                                        Text="{Binding StatusText}" />
                                         </Border>
                                         <Grid Grid.Column="2">
@@ -344,7 +348,7 @@
                                     </ItemsControl>
 
                                     <Grid Grid.Row="2">
-                                        <Button Width="60" Height="28" HorizontalAlignment="Left"
+                                        <Button Width="60" Height="28" MinWidth="60" Padding="10,0" HorizontalAlignment="Left"
                                                 Style="{StaticResource MotionPrimaryButton}"
                                                 Command="{Binding DataContext.LocatePointCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"

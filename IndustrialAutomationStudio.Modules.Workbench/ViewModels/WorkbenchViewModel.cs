@@ -10,7 +10,6 @@ public sealed class WorkbenchViewModel
         "motion.connection",
         "motion.point-debug",
         "motion.io-monitor",
-        "motion.multi-axis",
         "communication.connection",
         "workflow.designer"
     ];
@@ -96,7 +95,6 @@ public sealed class WorkbenchViewModel
             "控制卡连接" => "卡",
             "点位调试" => "点",
             "IO 监控" => "IO",
-            "多轴运动" => "轴",
             "通讯连接" => "讯",
             "节点流程" => "流",
             _ => "↗"

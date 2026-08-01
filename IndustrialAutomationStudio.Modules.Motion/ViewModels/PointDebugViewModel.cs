@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using IndustrialAutomationStudio.Modules.Motion.Models;
 using IndustrialAutomationStudio.Modules.Motion.Repositories.Interfaces;
 using IndustrialAutomationStudio.Modules.Motion.Services.Interfaces;
-using IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
+using IndustrialAutomationStudio.Modules.Motion.ViewModels.Jog;
 using IndustrialAutomationStudio.Modules.Motion.ViewModels.PointDebug;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -18,8 +18,10 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     private readonly IMotionExecutionService _motionExecution;
     private readonly JogModuleFactory _jogModuleFactory;
     private readonly SemaphoreSlim _pointPersistenceGate = new(1, 1);
+    private static readonly TimeSpan PositionRefreshInterval = TimeSpan.FromMilliseconds(200);
     private IReadOnlyDictionary<AxisAddress, AxisConfig> _axes =
         new Dictionary<AxisAddress, AxisConfig>();
+    private CancellationTokenSource? _refreshCancellation;
     private List<PositionPoint> _allPoints = [];
     private AxisGroupOptionViewModel? _selectedGroup;
     private PointRowViewModel? _selectedPoint;
@@ -60,8 +62,11 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
         LoadCommand = new AsyncDelegateCommand(LoadAsync);
         RefreshPositionsCommand = new AsyncDelegateCommand(RefreshPositionsAsync);
-        RecordCurrentPositionCommand = new AsyncDelegateCommand(
-            RecordCurrentPositionAsync,
+        AddPointCommand = new DelegateCommand(
+            () => AddPoint(),
+            () => IsInteractionEnabled && SelectedGroup is not null);
+        SaveCurrentPositionCommand = new AsyncDelegateCommand(
+            SaveCurrentPositionAsync,
             () => IsInteractionEnabled && SelectedGroup is not null);
         BeginEditPointCommand = new DelegateCommand<PointRowViewModel>(
             BeginEditPoint,
@@ -95,7 +100,8 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
     public AsyncDelegateCommand LoadCommand { get; }
     public AsyncDelegateCommand RefreshPositionsCommand { get; }
-    public AsyncDelegateCommand RecordCurrentPositionCommand { get; }
+    public DelegateCommand AddPointCommand { get; }
+    public AsyncDelegateCommand SaveCurrentPositionCommand { get; }
     public DelegateCommand<PointRowViewModel> BeginEditPointCommand { get; }
     public AsyncDelegateCommand<PointRowViewModel> SavePointCommand { get; }
     public DelegateCommand<PointRowViewModel> CancelEditPointCommand { get; }
@@ -506,9 +512,31 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         }
     }
 
-    public async Task RecordCurrentPositionAsync(
+    public PointRowViewModel AddPoint()
+    {
+        var group = SelectedGroup?.Config
+            ?? throw new InvalidOperationException("请先选择分组。");
+        var positions = group.Members.Select(member => new PointAxisPosition
+        {
+            Address = member.Address,
+            Position = 0
+        });
+        return AddPoint(
+            group,
+            positions,
+            "已新增点位，请填写名称、速度和位置后保存。");
+    }
+
+    public async Task SaveCurrentPositionAsync(
         CancellationToken cancellationToken = default)
     {
+        var group = SelectedGroup?.Config;
+        if (group is null)
+        {
+            SetStatus("请先选择分组。", MotionStatusLevel.Neutral);
+            return;
+        }
+
         var configs = SelectedAxisConfigs();
         if (configs.Count == 0)
         {
@@ -516,6 +544,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             return;
         }
 
+        IsBusy = true;
         try
         {
             var states = await _motionExecution.ReadAxisStatesAsync(
@@ -532,20 +561,33 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 readout.Position = byAddress[readout.Address].ActualPosition;
             }
 
-            _ = RecordCurrentPosition();
+            var row = AddPoint(
+                group,
+                group.Members.Select(member => new PointAxisPosition
+                {
+                    Address = member.Address,
+                    Position = byAddress[member.Address].ActualPosition
+                }),
+                "正在保存当前位置...");
+            await SavePointAsync(row, cancellationToken);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             SetStatus(
-                $"记录当前位置失败：{exception.Message}",
+                $"保存当前位置失败：{exception.Message}",
                 MotionStatusLevel.Error);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 
-    public PointRowViewModel RecordCurrentPosition()
+    private PointRowViewModel AddPoint(
+        AxisGroupConfig group,
+        IEnumerable<PointAxisPosition> positions,
+        string statusMessage)
     {
-        var group = SelectedGroup?.Config
-            ?? throw new InvalidOperationException("请先选择分组。");
         var name = NextPointName(group.Id);
         var point = new PositionPoint
         {
@@ -553,19 +595,13 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             GroupId = group.Id,
             Name = name,
             Speed = 50,
-            AxisPositions = PositionReadouts.Select(readout => new PointAxisPosition
-            {
-                Address = readout.Address,
-                Position = readout.Position
-            }).ToList()
+            AxisPositions = positions.Select(position => position with { }).ToList()
         };
         var row = CreatePointRow(point, group, isNew: true);
         Points.Add(row);
         SelectedPoint = row;
         RaisePropertyChanged(nameof(HasPoints));
-        SetStatus(
-            "已记录当前位置，请修改名称和速度后保存。",
-            MotionStatusLevel.Info);
+        SetStatus(statusMessage, MotionStatusLevel.Info);
         return row;
     }
 
@@ -781,9 +817,44 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         }
     }
 
-    public void OnNavigatedTo(NavigationContext navigationContext) => _ = LoadAsync();
+    public void OnNavigatedTo(NavigationContext navigationContext) => StartRefreshLoop();
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-    public void OnNavigatedFrom(NavigationContext navigationContext) => _ = StopGroupAsync();
+    public void OnNavigatedFrom(NavigationContext navigationContext)
+    {
+        StopRefreshLoop();
+        _ = StopGroupAsync();
+    }
+
+    private void StartRefreshLoop()
+    {
+        StopRefreshLoop();
+        _refreshCancellation = new CancellationTokenSource();
+        _ = RunRefreshLoopAsync(_refreshCancellation.Token);
+    }
+
+    private void StopRefreshLoop()
+    {
+        var cancellation = _refreshCancellation;
+        _refreshCancellation = null;
+        cancellation?.Cancel();
+        cancellation?.Dispose();
+    }
+
+    private async Task RunRefreshLoopAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await LoadAsync(cancellationToken);
+            using var timer = new PeriodicTimer(PositionRefreshInterval);
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await RefreshPositionsAsync(cancellationToken);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+    }
 
     private void RebuildSelectedGroup()
     {
@@ -1078,7 +1149,8 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
     private void RaiseCommandStates()
     {
-        RecordCurrentPositionCommand.RaiseCanExecuteChanged();
+        AddPointCommand.RaiseCanExecuteChanged();
+        SaveCurrentPositionCommand.RaiseCanExecuteChanged();
         BeginEditPointCommand.RaiseCanExecuteChanged();
         SavePointCommand.RaiseCanExecuteChanged();
         DeletePointCommand.RaiseCanExecuteChanged();

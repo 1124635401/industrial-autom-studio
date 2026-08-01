@@ -8,7 +8,10 @@ public partial class MotionConnectionView : UserControl
     private const double CompactStatusThreshold = 980;
     private bool? _usesCompactStatusLayout;
 
-    public MotionConnectionView() => InitializeComponent();
+    public MotionConnectionView()
+    {
+        InitializeComponent();
+    }
 
     private void MotionConnectionView_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {

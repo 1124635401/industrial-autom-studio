@@ -1,7 +1,7 @@
 using IndustrialAutomationStudio.Modules.Motion.Models;
 using Prism.Mvvm;
 
-namespace IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
+namespace IndustrialAutomationStudio.Modules.Motion.ViewModels.Jog;
 
 public sealed class JogDirectionViewModel : BindableBase
 {

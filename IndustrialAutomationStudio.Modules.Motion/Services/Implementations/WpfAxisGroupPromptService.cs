@@ -1,6 +1,7 @@
 using System.Windows;
 using IndustrialAutomationStudio.Modules.Motion.Models;
 using IndustrialAutomationStudio.Modules.Motion.Services.Interfaces;
+using IndustrialAutomationStudio.Modules.Motion.Views.Dialogs;
 
 namespace IndustrialAutomationStudio.Modules.Motion.Services.Implementations;
 
@@ -8,28 +9,37 @@ public sealed class WpfAxisGroupPromptService : IAxisGroupPromptService
 {
     public Task<ConfigurationPromptResult> ConfirmUnsavedChangesAsync()
     {
-        var result = MessageBox.Show(
+        var result = MotionConfirmDialog.Show(
             Application.Current?.MainWindow,
-            "当前分组存在未保存的修改。\n是：保存并继续　否：放弃修改　取消：留在当前页面",
             "未保存的修改",
-            MessageBoxButton.YesNoCancel,
-            MessageBoxImage.Warning);
+            "当前分组存在未保存的修改。",
+            ConfirmDialogIcon.Warning,
+            new ConfirmDialogButton[]
+            {
+                new("保存并继续", ConfirmDialogResult.Yes, IsPrimary: true),
+                new("放弃修改", ConfirmDialogResult.No),
+                new("取消", ConfirmDialogResult.Cancel)
+            });
         return Task.FromResult(result switch
         {
-            MessageBoxResult.Yes => ConfigurationPromptResult.SaveAndContinue,
-            MessageBoxResult.No => ConfigurationPromptResult.DiscardAndContinue,
+            ConfirmDialogResult.Yes => ConfigurationPromptResult.SaveAndContinue,
+            ConfirmDialogResult.No => ConfigurationPromptResult.DiscardAndContinue,
             _ => ConfigurationPromptResult.Cancel
         });
     }
 
     public Task<bool> ConfirmDeleteAsync(string groupName)
     {
-        var result = MessageBox.Show(
+        var result = MotionConfirmDialog.Show(
             Application.Current?.MainWindow,
-            $"确定删除分组“{groupName}”吗？\n该操作仅删除分组及其轴关联，不删除轴配置。",
             "删除分组",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-        return Task.FromResult(result == MessageBoxResult.Yes);
+            $"确定删除分组“{groupName}”吗？\n该操作仅删除分组及其轴关联，不删除轴配置。",
+            ConfirmDialogIcon.Error,
+            new ConfirmDialogButton[]
+            {
+                new("删除", ConfirmDialogResult.Yes, IsDanger: true),
+                new("取消", ConfirmDialogResult.No)
+            });
+        return Task.FromResult(result == ConfirmDialogResult.Yes);
     }
 }

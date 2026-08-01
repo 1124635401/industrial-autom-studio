@@ -4,5 +4,8 @@ namespace IndustrialAutomationStudio.Modules.Motion.Views;
 
 public partial class MotionHomeView : UserControl
 {
-    public MotionHomeView() => InitializeComponent();
+    public MotionHomeView()
+    {
+        InitializeComponent();
+    }
 }

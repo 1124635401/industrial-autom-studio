@@ -1,5 +1,5 @@
 using IndustrialAutomationStudio.Modules.Motion.Models;
-using IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
+using IndustrialAutomationStudio.Modules.Motion.ViewModels.Jog;
 
 namespace IndustrialAutomationStudio.Modules.Motion.ViewModels.PointDebug;
 

@@ -10,7 +10,6 @@ public static class MotionNavigationNames
     public const string AxisDebug = "MotionAxisDebug";
     public const string IoMonitor = "MotionIoMonitor";
     public const string PointDebug = "MotionPointDebug";
-    public const string MultiAxis = "MotionMultiAxis";
     public const string Alarm = "MotionAlarm";
     public const string Log = "MotionLog";
 }

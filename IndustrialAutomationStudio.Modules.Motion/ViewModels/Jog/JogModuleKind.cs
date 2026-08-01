@@ -1,4 +1,4 @@
-namespace IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
+namespace IndustrialAutomationStudio.Modules.Motion.ViewModels.Jog;
 
 public enum JogModuleKind
 {

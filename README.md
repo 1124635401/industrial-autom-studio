@@ -120,7 +120,7 @@ regionManager.RequestNavigate(
 
 完整工作区使用模块自己的紧凑顶部导航、标题区、内容 Region 和本地状态栏，不依赖平台 `ShellWindow`。
 
-也可直接导航到 `MotionNavigationNames.Connection`、`AxisConfig`、`GroupManagement`、`IoMonitor`、`PointDebug`、`MultiAxis` 或 `Log`，复用同一套业务逻辑、主题、对话框和调试 UI。外部宿主可以自行提供页面标题和导航外壳。
+也可直接导航到 `MotionNavigationNames.Connection`、`AxisConfig`、`GroupManagement`、`IoMonitor`、`PointDebug` 或 `Log`，复用同一套业务逻辑、主题、对话框和调试 UI。外部宿主可以自行提供页面标题和导航外壳。
 
 ## 新增 Driver
 

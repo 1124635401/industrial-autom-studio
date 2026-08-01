@@ -4,5 +4,8 @@ namespace IndustrialAutomationStudio.App.Views;
 
 public partial class DevelopmentPlaceholderView : UserControl
 {
-    public DevelopmentPlaceholderView() => InitializeComponent();
+    public DevelopmentPlaceholderView()
+    {
+        InitializeComponent();
+    }
 }

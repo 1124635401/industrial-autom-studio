@@ -83,7 +83,6 @@
     <Geometry x:Key="MotionIcon.Group">M5,5 A3,3 0 1 0 5.01,5 M15,5 A3,3 0 1 0 15.01,5 M5,15 A3,3 0 1 0 5.01,15 M8,5 L12,5 M5,8 L5,12 M8,15 L18,15 M18,12 L18,18</Geometry>
     <Geometry x:Key="MotionIcon.Io">M3,7 L7,7 7,17 11,17 11,10 15,10 15,15 21,15 M3,3 L21,3 21,21 3,21 Z</Geometry>
     <Geometry x:Key="MotionIcon.Point">M12,2 A10,10 0 1 0 12.01,2 M12,7 A5,5 0 1 0 12.01,7 M12,0 L12,5 M12,19 L12,24 M0,12 L5,12 M19,12 L24,12</Geometry>
-    <Geometry x:Key="MotionIcon.MultiAxis">M4,6 A2,2 0 1 0 4.01,6 M20,6 A2,2 0 1 0 20.01,6 M4,18 A2,2 0 1 0 4.01,18 M20,18 A2,2 0 1 0 20.01,18 M6,6 L18,6 M6,18 L18,18 M4,8 L4,16 M20,8 L20,16</Geometry>
     <Geometry x:Key="MotionIcon.Alarm">M6,17 L18,17 M8,17 L8,10 A4,4 0 0 1 16,10 L16,17 M10,20 A2,2 0 0 0 14,20 M12,4 L12,6</Geometry>
     <Geometry x:Key="MotionIcon.Log">M5,2 L16,2 21,7 21,22 5,22 Z M16,2 L16,7 21,7 M9,11 L17,11 M9,15 L17,15 M9,19 L15,19</Geometry>
     <Geometry x:Key="MotionIcon.Card">M2,5 L22,5 22,19 2,19 Z M6,9 L10,9 10,13 6,13 Z M14,10 L18,10 M14,14 L18,14</Geometry>

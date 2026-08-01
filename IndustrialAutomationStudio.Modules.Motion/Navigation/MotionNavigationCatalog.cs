@@ -54,14 +54,7 @@ public sealed class MotionNavigationCatalog : INavigationContributor
                     "读取、维护并移动到设备点位",
                     "MotionIcon.Point",
                     MotionNavigationNames.PointDebug,
-                    0),
-                Item(
-                    "motion.multi-axis",
-                    "多轴运动",
-                    "执行多轴点动与同步定位",
-                    "MotionIcon.MultiAxis",
-                    MotionNavigationNames.MultiAxis,
-                    10)
+                    0)
             ]);
 
         return new NavigationModule(

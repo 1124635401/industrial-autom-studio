@@ -10,29 +10,38 @@ public sealed class WpfConfigurationPromptService : IConfigurationPromptService
 {
     public Task<ConfigurationPromptResult> ConfirmUnsavedChangesAsync()
     {
-        var result = MessageBox.Show(
+        var result = MotionConfirmDialog.Show(
             Application.Current?.MainWindow,
-            "当前配置尚未保存。是否先保存再继续？",
             "未保存的更改",
-            MessageBoxButton.YesNoCancel,
-            MessageBoxImage.Warning);
+            "当前配置尚未保存。是否先保存再继续？",
+            ConfirmDialogIcon.Warning,
+            new ConfirmDialogButton[]
+            {
+                new("保存并继续", ConfirmDialogResult.Yes, IsPrimary: true),
+                new("不保存", ConfirmDialogResult.No),
+                new("取消", ConfirmDialogResult.Cancel)
+            });
         return Task.FromResult(result switch
         {
-            MessageBoxResult.Yes => ConfigurationPromptResult.SaveAndContinue,
-            MessageBoxResult.No => ConfigurationPromptResult.DiscardAndContinue,
+            ConfirmDialogResult.Yes => ConfigurationPromptResult.SaveAndContinue,
+            ConfirmDialogResult.No => ConfigurationPromptResult.DiscardAndContinue,
             _ => ConfigurationPromptResult.Cancel
         });
     }
 
     public Task<bool> ConfirmDeleteAsync(AxisConfig axis)
     {
-        var result = MessageBox.Show(
+        var result = MotionConfirmDialog.Show(
             Application.Current?.MainWindow,
-            $"确定从当前配置中删除轴“{axis.AxisName}”（{axis.Address.CardNo}/{axis.Address.AxisNo}）吗？",
             "删除轴配置",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-        return Task.FromResult(result == MessageBoxResult.Yes);
+            $"确定从当前配置中删除轴“{axis.AxisName}”（{axis.Address.CardNo}/{axis.Address.AxisNo}）吗？",
+            ConfirmDialogIcon.Error,
+            new ConfirmDialogButton[]
+            {
+                new("删除", ConfirmDialogResult.Yes, IsDanger: true),
+                new("取消", ConfirmDialogResult.No)
+            });
+        return Task.FromResult(result == ConfirmDialogResult.Yes);
     }
 
     public Task<AxisConfig?> ShowAddAxisAsync(AxisAddress suggestedAddress, string suggestedName)

@@ -1,0 +1,71 @@
+<Window x:Class="IndustrialAutomationStudio.Modules.Motion.Views.Dialogs.MotionConfirmDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:IndustrialAutomationStudio.Modules.Motion.Views.Dialogs"
+        Title="确认"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <local:ConfirmDialogButtonStyleConverter x:Key="MotionConfirmButtonStyleConverter" />
+    </Window.Resources>
+
+    <Border Style="{StaticResource MotionWorkspaceCardStyle}"
+            Margin="18"
+            MinWidth="400"
+            MaxWidth="460">
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Border Width="36" Height="36" CornerRadius="18"
+                        Background="{Binding IconBackBrush}"
+                        Visibility="{Binding IconVisibility}"
+                        Margin="0,0,14,0">
+                    <TextBlock Text="{Binding IconGlyph}"
+                               FontSize="18" FontWeight="SemiBold"
+                               Foreground="{Binding IconForeBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <TextBlock Text="{Binding DialogTitle}"
+                           FontSize="16" FontWeight="Medium"
+                           Foreground="{StaticResource MotionTextPrimaryBrush}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+
+            <TextBlock Grid.Row="1"
+                       Text="{Binding DialogMessage}"
+                       FontSize="13"
+                       Foreground="{StaticResource MotionTextSecondaryBrush}"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,22" />
+
+            <ItemsControl Grid.Row="2"
+                          ItemsSource="{Binding Buttons}"
+                          HorizontalAlignment="Right">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Margin="0,0,8,0"
+                                Style="{Binding Converter={StaticResource MotionConfirmButtonStyleConverter}}"
+                                Content="{Binding Text}"
+                                Command="{Binding DataContext.ChooseCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding Result}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Border>
+</Window>

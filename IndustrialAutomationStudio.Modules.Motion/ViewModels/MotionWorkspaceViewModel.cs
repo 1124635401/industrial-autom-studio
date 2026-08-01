@@ -45,7 +45,6 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
         NavigateAxisDebugCommand = CreateNavigation(MotionNavigationNames.AxisDebug, "单轴调试");
         NavigateIoMonitorCommand = CreateNavigation(MotionNavigationNames.IoMonitor, "IO 监控");
         NavigatePointDebugCommand = CreateNavigation(MotionNavigationNames.PointDebug, "点位调试");
-        NavigateMultiAxisCommand = CreateNavigation(MotionNavigationNames.MultiAxis, "多轴运动");
         NavigateAlarmCommand = CreateNavigation(MotionNavigationNames.Alarm, "报警诊断");
         NavigateLogCommand = CreateNavigation(MotionNavigationNames.Log);
         NavigationItems =
@@ -57,7 +56,6 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
             Item(MotionNavigationNames.AxisDebug, "单轴调试", "MotionIcon.Motion", NavigateAxisDebugCommand),
             Item(MotionNavigationNames.IoMonitor, "IO 监控", "MotionIcon.Io", NavigateIoMonitorCommand),
             Item(MotionNavigationNames.PointDebug, "点位调试", "MotionIcon.Point", NavigatePointDebugCommand),
-            Item(MotionNavigationNames.MultiAxis, "多轴运动", "MotionIcon.MultiAxis", NavigateMultiAxisCommand),
             Item(MotionNavigationNames.Alarm, "报警诊断", "MotionIcon.Alarm", NavigateAlarmCommand),
             Item(MotionNavigationNames.Log, "运动日志", "MotionIcon.Log", NavigateLogCommand)
         ];
@@ -74,7 +72,6 @@ public sealed class MotionWorkspaceViewModel : BindableBase, INavigationAware
     public DelegateCommand NavigateAxisDebugCommand { get; }
     public DelegateCommand NavigateIoMonitorCommand { get; }
     public DelegateCommand NavigatePointDebugCommand { get; }
-    public DelegateCommand NavigateMultiAxisCommand { get; }
     public DelegateCommand NavigateAlarmCommand { get; }
     public DelegateCommand NavigateLogCommand { get; }
     public IReadOnlyList<MotionWorkspaceNavigationItemViewModel> NavigationItems { get; }

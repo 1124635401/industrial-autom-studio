@@ -9,7 +9,7 @@ using IndustrialAutomationStudio.Modules.Motion.Services.Implementations;
 using IndustrialAutomationStudio.Modules.Motion.Services.Interfaces;
 using IndustrialAutomationStudio.Modules.Motion.ViewModels;
 using IndustrialAutomationStudio.Modules.Motion.ViewModels.Dialogs;
-using IndustrialAutomationStudio.Modules.Motion.ViewModels.MultiAxis;
+using IndustrialAutomationStudio.Modules.Motion.ViewModels.Jog;
 using IndustrialAutomationStudio.Modules.Motion.Views;
 using IndustrialAutomationStudio.Modules.Motion.Views.Dialogs;
 using Prism.Ioc;
@@ -65,8 +65,6 @@ public sealed class MotionModule : IModule
             MotionNavigationNames.IoMonitor);
         containerRegistry.RegisterForNavigation<PointDebugView, PointDebugViewModel>(
             MotionNavigationNames.PointDebug);
-        containerRegistry.RegisterForNavigation<MultiAxisMotionView, MultiAxisMotionViewModel>(
-            MotionNavigationNames.MultiAxis);
         containerRegistry.RegisterForNavigation<PlaceholderView, PlaceholderViewModel>(
             MotionNavigationNames.Alarm);
     }

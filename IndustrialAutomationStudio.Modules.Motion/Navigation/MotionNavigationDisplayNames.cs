@@ -11,7 +11,6 @@ public static class MotionNavigationDisplayNames
         MotionNavigationNames.AxisDebug => "单轴调试",
         MotionNavigationNames.IoMonitor => "IO 监控",
         MotionNavigationNames.PointDebug => "点位调试",
-        MotionNavigationNames.MultiAxis => "多轴运动",
         MotionNavigationNames.Alarm => "报警诊断",
         MotionNavigationNames.Log => "运动日志",
         _ => route
