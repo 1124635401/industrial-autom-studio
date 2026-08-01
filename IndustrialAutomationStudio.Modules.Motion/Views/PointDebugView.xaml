@@ -286,7 +286,6 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="82" />
                                         </Grid.ColumnDefinitions>
                                         <Grid>
@@ -309,14 +308,7 @@
                                                 </TextBox.Style>
                                             </TextBox>
                                         </Grid>
-                                        <Border Grid.Column="1" Margin="6,0" Padding="8,2"
-                                                Background="{StaticResource MotionReferencePageBrush}" CornerRadius="10"
-                                                VerticalAlignment="Center">
-                                            <TextBlock FontSize="9" Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Text="{Binding StatusText}" />
-                                        </Border>
-                                        <Grid Grid.Column="2">
+                                        <Grid Grid.Column="1">
                                             <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
                                                        FontSize="9" Foreground="{StaticResource MotionTextSecondaryBrush}">
                                                 <TextBlock.Style>
@@ -353,9 +345,6 @@
                                                 Command="{Binding DataContext.LocatePointCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}" Content="定位" />
-                                        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                   FontSize="8" Foreground="{StaticResource MotionTextSecondaryBrush}"
-                                                   Text="当前分组点位" />
                                     </Grid>
                                 </Grid>
                             </DataTemplate>

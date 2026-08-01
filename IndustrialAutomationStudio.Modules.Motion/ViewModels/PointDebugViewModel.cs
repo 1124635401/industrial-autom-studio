@@ -92,12 +92,6 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     public ObservableCollection<AxisPositionReadoutViewModel> PositionReadouts { get; } = [];
     public ObservableCollection<AxisControlCardViewModel> AxisCards { get; } = [];
     public ObservableCollection<PointRowViewModel> Points { get; } = [];
-    public ObservableCollection<JogModuleViewModel> Modules { get; } = [];
-    public ObservableCollection<JogModuleViewModel> CenterModules { get; } = [];
-    public ObservableCollection<JogModuleViewModel> LinearModules { get; } = [];
-    public ObservableCollection<JogModuleViewModel> RotaryModules { get; } = [];
-    public ObservableCollection<JogModuleViewModel> AuxiliaryModules { get; } = [];
-
     public AsyncDelegateCommand LoadCommand { get; }
     public AsyncDelegateCommand RefreshPositionsCommand { get; }
     public DelegateCommand AddPointCommand { get; }
@@ -172,11 +166,6 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     public int SelectedAxisCount => SelectedGroup?.AxisCount ?? 0;
     public bool HasGroups => Groups.Count > 0;
     public bool HasPoints => Points.Count > 0;
-    public bool HasCenterModules => CenterModules.Count > 0;
-    public bool HasLinearModules => LinearModules.Count > 0;
-    public bool HasRotaryModules => RotaryModules.Count > 0;
-    public bool HasAuxiliaryModules => AuxiliaryModules.Count > 0;
-
     public double JogSpeed
     {
         get => _jogSpeed;
@@ -896,11 +885,6 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         }
 
         var build = _jogModuleFactory.Build(group, _axes);
-        foreach (var module in build.Modules)
-        {
-            Modules.Add(module);
-            RegionCollection(module.Region).Add(module);
-        }
         JogPad = new PointDebugJogPadViewModel(
             build.Modules.SelectMany(module => module.Directions));
 
@@ -1041,11 +1025,6 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         PositionReadouts.Clear();
         AxisCards.Clear();
         Points.Clear();
-        Modules.Clear();
-        CenterModules.Clear();
-        LinearModules.Clear();
-        RotaryModules.Clear();
-        AuxiliaryModules.Clear();
         XAxisCard = null;
         YAxisCard = null;
         ZAxisCard = null;
@@ -1054,16 +1033,6 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         SelectedPoint = null;
         RaiseCollectionStates();
     }
-
-    private ObservableCollection<JogModuleViewModel> RegionCollection(
-        JogModuleRegion region) => region switch
-        {
-            JogModuleRegion.Center => CenterModules,
-            JogModuleRegion.Linear => LinearModules,
-            JogModuleRegion.Rotary => RotaryModules,
-            JogModuleRegion.Auxiliary => AuxiliaryModules,
-            _ => throw new ArgumentOutOfRangeException(nameof(region), region, null)
-        };
 
     private void AssignAxisCard(AxisControlCardViewModel card)
     {
@@ -1141,10 +1110,6 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     private void RaiseCollectionStates()
     {
         RaisePropertyChanged(nameof(HasPoints));
-        RaisePropertyChanged(nameof(HasCenterModules));
-        RaisePropertyChanged(nameof(HasLinearModules));
-        RaisePropertyChanged(nameof(HasRotaryModules));
-        RaisePropertyChanged(nameof(HasAuxiliaryModules));
     }
 
     private void RaiseCommandStates()

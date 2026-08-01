@@ -1,63 +1,748 @@
 <UserControl x:Class="IndustrialAutomationStudio.Modules.Workbench.Views.WorkbenchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:IndustrialAutomationStudio.Modules.Workbench.ViewModels"
+             xmlns:converters="clr-namespace:IndustrialAutomationStudio.Modules.Workbench.Converters"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True"
              Background="Transparent">
+    <UserControl.Resources>
+        <converters:WorkbenchStatusKindToBrushConverter x:Key="WorkbenchStatusKindToBrushConverter" />
+        <converters:WorkbenchStatusKindToLightBrushConverter x:Key="WorkbenchStatusKindToLightBrushConverter" />
+        <converters:PointCollectionConverter x:Key="PointCollectionConverter" />
+
+        <DataTemplate DataType="{x:Type vm:StatusCardSectionViewModel}">
+            <Border MinHeight="118"
+                    Margin="0,0,12,0"
+                    Padding="16"
+                    Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="40"
+                            Height="40"
+                            VerticalAlignment="Top"
+                            Background="{Binding StatusKind, Converter={StaticResource WorkbenchStatusKindToLightBrushConverter}}"
+                            CornerRadius="8">
+                        <Path Width="20"
+                              Height="20"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Stretch="Uniform"
+                              Fill="{Binding StatusKind, Converter={StaticResource WorkbenchStatusKindToBrushConverter}}"
+                              Data="{Binding IconKey, Converter={StaticResource ShellResourceKeyToGeometryConverter}}" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                        <TextBlock FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                   Text="{Binding Title}" />
+                        <TextBlock Margin="0,6,0,0"
+                                   FontSize="26"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                   Text="{Binding MainValue}" />
+                        <TextBlock Margin="0,2,0,0"
+                                   FontSize="11"
+                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                   Text="{Binding SubText}" />
+                        <TextBlock Margin="0,8,0,0"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{Binding StatusKind, Converter={StaticResource WorkbenchStatusKindToBrushConverter}}"
+                                   Text="{Binding StatusText}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:AxisOverviewSectionViewModel}">
+            <Border Padding="18" Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource ShellBrush.PrimaryText}"
+                               Text="{Binding Title}" />
+                    <Grid Grid.Row="1" Margin="0,12,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Margin="0,0,8,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="80" />
+                                <ColumnDefinition Width="80" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="轴号" />
+                            <TextBlock Grid.Column="1"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="轴名称" />
+                            <TextBlock Grid.Column="2"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="状态" />
+                            <TextBlock Grid.Column="3"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="位置(mm)" />
+                            <TextBlock Grid.Column="4"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="速度(mm/s)" />
+                        </Grid>
+                        <ScrollViewer Grid.Row="1"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AxisStatusItemViewModel}">
+                                        <Grid Margin="0,0,8,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="50" />
+                                                <ColumnDefinition Width="60" />
+                                                <ColumnDefinition Width="60" />
+                                                <ColumnDefinition Width="80" />
+                                                <ColumnDefinition Width="80" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding AxisId}" />
+                                            <TextBlock Grid.Column="1"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding Name}" />
+                                            <StackPanel Grid.Column="2"
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+                                                <Ellipse Width="6"
+                                                         Height="6"
+                                                         Margin="0,0,5,0"
+                                                         VerticalAlignment="Center">
+                                                    <Ellipse.Style>
+                                                        <Style TargetType="Ellipse">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding State}" Value="Enabled">
+                                                                    <Setter Property="Fill" Value="{StaticResource ShellBrush.Success}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding State}" Value="Paused">
+                                                                    <Setter Property="Fill" Value="{StaticResource ShellBrush.Warning}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding State}" Value="Disabled">
+                                                                    <Setter Property="Fill" Value="{StaticResource ShellBrush.Disabled}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Ellipse.Style>
+                                                </Ellipse>
+                                                <TextBlock FontSize="12">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding State}" Value="Enabled">
+                                                                    <Setter Property="Text" Value="使能" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource ShellBrush.Success}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding State}" Value="Paused">
+                                                                    <Setter Property="Text" Value="暂停" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource ShellBrush.Warning}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding State}" Value="Disabled">
+                                                                    <Setter Property="Text" Value="未使能" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource ShellBrush.AuxiliaryText}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="3"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding Position, StringFormat={}{0:F3}}" />
+                                            <TextBlock Grid.Column="4"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding Velocity, StringFormat={}{0:F3}}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                    <TextBlock Grid.Row="2"
+                               Margin="0,8,0,0"
+                               HorizontalAlignment="Right"
+                               FontSize="12"
+                               Foreground="{StaticResource ShellBrush.Primary}"
+                               Text="查看全部" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:IoOverviewSectionViewModel}">
+            <Border Padding="18" Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                   Text="{Binding Title}" />
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,12,0">
+                                <Ellipse Width="6"
+                                         Height="6"
+                                         Margin="0,0,5,0"
+                                         Fill="{StaticResource ShellBrush.Success}" />
+                                <TextBlock FontSize="11"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="ON" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6"
+                                         Height="6"
+                                         Margin="0,0,5,0"
+                                         Fill="{StaticResource ShellBrush.Disabled}" />
+                                <TextBlock FontSize="11"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="OFF" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Grid.Row="2" Margin="0,12,0,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Width="34" FontSize="11" />
+                            <ItemsControl ItemsSource="{Binding IndexLabels}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="8" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type sys:Int32}">
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   FontSize="10"
+                                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                                   Text="{Binding}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Width="34"
+                                       FontSize="12"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="输入" />
+                            <ItemsControl ItemsSource="{Binding Inputs}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="8" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:IoStateItemViewModel}">
+                                        <Border Width="8"
+                                                Height="8"
+                                                Margin="3"
+                                                CornerRadius="4">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{StaticResource ShellBrush.Disabled}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOn}" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource ShellBrush.Success}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Width="34"
+                                       FontSize="12"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="输出" />
+                            <ItemsControl ItemsSource="{Binding Outputs}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="8" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:IoStateItemViewModel}">
+                                        <Border Width="8"
+                                                Height="8"
+                                                Margin="3"
+                                                CornerRadius="4">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{StaticResource ShellBrush.Disabled}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOn}" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource ShellBrush.Success}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Grid.Row="3"
+                               Margin="0,8,0,0"
+                               HorizontalAlignment="Right"
+                               FontSize="12"
+                               Foreground="{StaticResource ShellBrush.Primary}"
+                               Text="进入IO监控" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:SystemResourceSectionViewModel}">
+            <Border Padding="18" Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource ShellBrush.PrimaryText}"
+                               Text="{Binding Title}" />
+                    <Grid Grid.Row="1" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <!-- CPU -->
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <Grid Width="72" Height="72">
+                                <Ellipse Width="72"
+                                         Height="72"
+                                         Stroke="{StaticResource ShellBrush.Border}"
+                                         StrokeThickness="7" />
+                                <Ellipse Width="72"
+                                         Height="72"
+                                         Stroke="{Binding Cpu.StrokeBrush}"
+                                         StrokeDashArray="{Binding Cpu.DashArray}"
+                                         StrokeThickness="7"
+                                         RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform Angle="-90" />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                           Text="{Binding Cpu.ValueText}" />
+                            </Grid>
+                            <TextBlock Margin="0,6,0,0"
+                                       HorizontalAlignment="Center"
+                                       FontSize="10"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="{Binding Cpu.Name}" />
+                        </StackPanel>
+                        <!-- Memory -->
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <Grid Width="72" Height="72">
+                                <Ellipse Width="72"
+                                         Height="72"
+                                         Stroke="{StaticResource ShellBrush.Border}"
+                                         StrokeThickness="7" />
+                                <Ellipse Width="72"
+                                         Height="72"
+                                         Stroke="{Binding Memory.StrokeBrush}"
+                                         StrokeDashArray="{Binding Memory.DashArray}"
+                                         StrokeThickness="7"
+                                         RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform Angle="-90" />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                           Text="{Binding Memory.ValueText}" />
+                            </Grid>
+                            <TextBlock Margin="0,6,0,0"
+                                       HorizontalAlignment="Center"
+                                       FontSize="10"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="{Binding Memory.Name}" />
+                        </StackPanel>
+                        <!-- Disk -->
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <Grid Width="72" Height="72">
+                                <Ellipse Width="72"
+                                         Height="72"
+                                         Stroke="{StaticResource ShellBrush.Border}"
+                                         StrokeThickness="7" />
+                                <Ellipse Width="72"
+                                         Height="72"
+                                         Stroke="{Binding Disk.StrokeBrush}"
+                                         StrokeDashArray="{Binding Disk.DashArray}"
+                                         StrokeThickness="7"
+                                         RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform Angle="-90" />
+                                    </Ellipse.RenderTransform>
+                                </Ellipse>
+                                <TextBlock HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                           Text="{Binding Disk.ValueText}" />
+                            </Grid>
+                            <TextBlock Margin="0,6,0,0"
+                                       HorizontalAlignment="Center"
+                                       FontSize="10"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="{Binding Disk.Name}" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock FontSize="11"
+                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                   Text="CPU使用率(%)" />
+                        <Grid Grid.Row="1" Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="28" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Center">
+                                <TextBlock FontSize="9"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="100%" />
+                                <TextBlock Margin="0,18,0,0"
+                                           FontSize="9"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="75%" />
+                                <TextBlock Margin="0,18,0,0"
+                                           FontSize="9"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="50%" />
+                                <TextBlock Margin="0,18,0,0"
+                                           FontSize="9"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="25%" />
+                                <TextBlock Margin="0,18,0,0"
+                                           FontSize="9"
+                                           Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                           Text="0%" />
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    BorderBrush="{StaticResource ShellBrush.Border}"
+                                    BorderThickness="0,0,0,1">
+                                <Viewbox Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Canvas Width="320" Height="100">
+                                        <Polyline Points="0,100 320,100"
+                                                  Stroke="{StaticResource ShellBrush.Border}"
+                                                  StrokeThickness="1" />
+                                        <Polyline Points="0,75 320,75"
+                                                  Stroke="{StaticResource ShellBrush.Border}"
+                                                  StrokeThickness="0.5"
+                                                  StrokeDashArray="4,4" />
+                                        <Polyline Points="0,50 320,50"
+                                                  Stroke="{StaticResource ShellBrush.Border}"
+                                                  StrokeThickness="0.5"
+                                                  StrokeDashArray="4,4" />
+                                        <Polyline Points="0,25 320,25"
+                                                  Stroke="{StaticResource ShellBrush.Border}"
+                                                  StrokeThickness="0.5"
+                                                  StrokeDashArray="4,4" />
+                                        <Polygon Points="{Binding CpuHistoryArea, Converter={StaticResource PointCollectionConverter}}"
+                                                 Fill="#1A1677FF" />
+                                        <Polyline Points="{Binding CpuHistory, Converter={StaticResource PointCollectionConverter}}"
+                                                  Stroke="{StaticResource ShellBrush.Primary}"
+                                                  StrokeThickness="2" />
+                                    </Canvas>
+                                </Viewbox>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:QuickEntrySectionViewModel}">
+            <Border Padding="18" Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource ShellBrush.PrimaryText}"
+                               Text="{Binding Title}" />
+                    <ItemsControl Grid.Row="1"
+                                  Margin="0,16,0,0"
+                                  ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="6" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:QuickEntryItemViewModel}">
+                                <Button Padding="5"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand"
+                                        Command="{Binding DataContext.NavigateQuickEntryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <StackPanel>
+                                        <Border Width="44"
+                                                Height="44"
+                                                HorizontalAlignment="Center"
+                                                Background="{StaticResource ShellBrush.PrimaryLight}"
+                                                CornerRadius="9">
+                                            <Path Width="20"
+                                                  Height="20"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Stretch="Uniform"
+                                                  Fill="{StaticResource ShellBrush.Primary}"
+                                                  Data="{Binding IconKey, Converter={StaticResource ShellResourceKeyToGeometryConverter}}" />
+                                        </Border>
+                                        <TextBlock Margin="0,8,0,0"
+                                                   HorizontalAlignment="Center"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                   Text="{Binding Title}" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:AlarmListSectionViewModel}">
+            <Border Padding="18" Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource ShellBrush.PrimaryText}"
+                               Text="{Binding Title}" />
+                    <Grid Grid.Row="1" Margin="0,12,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Margin="0,0,0,6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="110" />
+                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="时间" />
+                            <TextBlock Grid.Column="1"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="等级" />
+                            <TextBlock Grid.Column="2"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="来源" />
+                            <TextBlock Grid.Column="3"
+                                       FontSize="11"
+                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                       Text="报警信息" />
+                        </Grid>
+                        <ScrollViewer Grid.Row="1"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:AlarmItemViewModel}">
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="110" />
+                                                <ColumnDefinition Width="50" />
+                                                <ColumnDefinition Width="60" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding Time, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" />
+                                            <Border Grid.Column="1"
+                                                    Padding="6,2"
+                                                    HorizontalAlignment="Left"
+                                                    CornerRadius="4">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                                                <Setter Property="Background" Value="{StaticResource ShellBrush.WarningLight}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                                <Setter Property="Background" Value="{StaticResource ShellBrush.ErrorLight}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock FontSize="11">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                                                    <Setter Property="Text" Value="警告" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource ShellBrush.Warning}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                                    <Setter Property="Text" Value="严重" />
+                                                                    <Setter Property="Foreground" Value="{StaticResource ShellBrush.Error}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+                                            <TextBlock Grid.Column="2"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding Source}" />
+                                            <TextBlock Grid.Column="3"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.SecondaryText}"
+                                                       Text="{Binding Message}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:WorkflowListSectionViewModel}">
+            <Border Padding="18" Style="{StaticResource ShellCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource ShellBrush.PrimaryText}"
+                               Text="{Binding Title}" />
+                    <Border Grid.Row="1"
+                            Margin="0,12,0,0"
+                            Padding="14"
+                            Background="{StaticResource ShellBrush.Page}"
+                            BorderBrush="{StaticResource ShellBrush.Border}"
+                            BorderThickness="1"
+                            CornerRadius="8">
+                        <ItemsControl ItemsSource="{Binding Items}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:WorkflowItemViewModel}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontSize="14"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource ShellBrush.PrimaryText}"
+                                                       Text="{Binding Name}" />
+                                            <TextBlock Margin="8,0,0,0"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                                       Text="{Binding Version}" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1"
+                                                   Margin="0,6,0,0"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
+                                                   Text="{Binding StartTime, StringFormat=开始时间：{}{0:yyyy-MM-dd HH:mm:ss}}" />
+                                        <Border Grid.Row="2"
+                                                Margin="0,10,0,0"
+                                                Padding="8,3"
+                                                HorizontalAlignment="Left"
+                                                Background="{StaticResource ShellBrush.SuccessLight}"
+                                                CornerRadius="4"
+                                                Visibility="{Binding IsRunning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock FontSize="11"
+                                                       Foreground="{StaticResource ShellBrush.Success}"
+                                                       Text="运行中" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-        <StackPanel>
+        <StackPanel Margin="18,16">
             <ItemsControl ItemsSource="{Binding StatusCards}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Columns="5" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border MinHeight="130"
-                                Margin="0,0,12,14"
-                                Padding="16"
-                                Style="{StaticResource ShellCardStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="48" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Border Width="40"
-                                        Height="40"
-                                        VerticalAlignment="Top"
-                                        Background="{StaticResource ShellBrush.PrimaryLight}"
-                                        CornerRadius="8">
-                                    <TextBlock HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource ShellBrush.Primary}"
-                                               Text="{Binding BadgeText}" />
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                    <TextBlock FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Text="{Binding Title}" />
-                                    <TextBlock Margin="0,11,0,0"
-                                               FontSize="13"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource ShellBrush.Warning}"
-                                               Text="{Binding StatusText}" />
-                                    <TextBlock Margin="0,5,0,0"
-                                               FontSize="10"
-                                               Foreground="{StaticResource ShellBrush.AuxiliaryText}"
-                                               Text="{Binding Description}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <Grid Margin="0,0,0,14">
+            <Grid Margin="0,14,0,0" Height="320">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1.15*" />
                     <ColumnDefinition Width="12" />
@@ -65,63 +750,12 @@
                     <ColumnDefinition Width="12" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <ItemsControl Grid.ColumnSpan="5"
-                              ItemsSource="{Binding OverviewSections}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="3" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Height="260"
-                                    Margin="0,0,12,0"
-                                    Padding="18"
-                                    Style="{StaticResource ShellCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock FontSize="16"
-                                               FontWeight="SemiBold"
-                                               Text="{Binding Title}" />
-                                    <StackPanel Grid.Row="1"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center">
-                                        <Border Width="54"
-                                                Height="54"
-                                                HorizontalAlignment="Center"
-                                                Background="{StaticResource ShellBrush.PrimaryLight}"
-                                                CornerRadius="14">
-                                            <TextBlock HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource ShellBrush.Primary}"
-                                                       Text="{Binding BadgeText}" />
-                                        </Border>
-                                        <TextBlock Margin="0,16,0,0"
-                                                   HorizontalAlignment="Center"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource ShellBrush.Warning}"
-                                                   Text="{Binding StatusText}" />
-                                        <TextBlock Margin="0,7,0,0"
-                                                   MaxWidth="260"
-                                                   HorizontalAlignment="Center"
-                                                   TextAlignment="Center"
-                                                   TextWrapping="Wrap"
-                                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
-                                                   Text="{Binding Description}" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <ContentControl Grid.Column="0" Content="{Binding AxisOverview}" />
+                <ContentControl Grid.Column="2" Content="{Binding IoOverview}" />
+                <ContentControl Grid.Column="4" Content="{Binding SystemResource}" />
             </Grid>
 
-            <Grid>
+            <Grid Margin="0,14,0,0" Height="190">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1.35*" />
                     <ColumnDefinition Width="12" />
@@ -129,99 +763,9 @@
                     <ColumnDefinition Width="12" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0"
-                        MinHeight="190"
-                        Padding="18"
-                        Style="{StaticResource ShellCardStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock FontSize="16"
-                                   FontWeight="SemiBold"
-                                   Text="快捷入口" />
-                        <ItemsControl Grid.Row="1"
-                                      Margin="0,20,0,0"
-                                      ItemsSource="{Binding QuickEntries}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="6" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Padding="5"
-                                            Background="Transparent"
-                                            BorderThickness="0"
-                                            Cursor="Hand"
-                                            Command="{Binding DataContext.NavigateShortcutCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}">
-                                        <StackPanel>
-                                            <Border Width="44"
-                                                    Height="44"
-                                                    HorizontalAlignment="Center"
-                                                    Background="{StaticResource ShellBrush.PrimaryLight}"
-                                                    CornerRadius="9">
-                                                <TextBlock HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"
-                                                           FontSize="12"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{StaticResource ShellBrush.Primary}"
-                                                           Text="{Binding BadgeText}" />
-                                            </Border>
-                                            <TextBlock Margin="0,8,0,0"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="11"
-                                                       Text="{Binding Title}" />
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Grid>
-                </Border>
-
-                <ItemsControl Grid.Column="2"
-                              Grid.ColumnSpan="3"
-                              ItemsSource="{Binding RecentSections}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Columns="2" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border MinHeight="190"
-                                    Margin="0,0,12,0"
-                                    Padding="18"
-                                    Style="{StaticResource ShellCardStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock FontSize="16"
-                                               FontWeight="SemiBold"
-                                               Text="{Binding Title}" />
-                                    <StackPanel Grid.Row="1"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center">
-                                        <TextBlock HorizontalAlignment="Center"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource ShellBrush.Warning}"
-                                                   Text="{Binding StatusText}" />
-                                        <TextBlock Margin="0,7,0,0"
-                                                   TextAlignment="Center"
-                                                   Foreground="{StaticResource ShellBrush.AuxiliaryText}"
-                                                   Text="{Binding Description}" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <ContentControl Grid.Column="0" Content="{Binding QuickEntries}" />
+                <ContentControl Grid.Column="2" Content="{Binding AlarmList}" />
+                <ContentControl Grid.Column="4" Content="{Binding WorkflowList}" />
             </Grid>
         </StackPanel>
     </ScrollViewer>
