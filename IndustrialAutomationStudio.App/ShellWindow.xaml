@@ -109,7 +109,8 @@
             <Border Grid.Row="0"
                     Background="{StaticResource ShellBrush.TitleBar}"
                     BorderBrush="{StaticResource ShellBrush.TitleBarBorder}"
-                    BorderThickness="0,0,0,1">
+                    BorderThickness="0,0,0,1"
+                    MouseLeftButtonDown="TitleBar_OnMouseLeftButtonDown">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -117,12 +118,11 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel x:Name="ProductIdentity"
+                        <StackPanel x:Name="ProductIdentity"
                                 Grid.Column="0"
                                 Margin="24,0,24,0"
                                 Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                MouseLeftButtonDown="TitleBar_OnMouseLeftButtonDown">
+                                VerticalAlignment="Center">
                         <Border Width="32"
                                 Height="32"
                                 Background="{StaticResource ShellBrush.TitleBarLogoBackground}"

@@ -26,6 +26,7 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
     private int _diTotalPages = 1;
     private int _doTotalPages = 1;
     private string _statusMessage = "等待 IO 数据";
+    private MotionStatusLevel _statusLevel = MotionStatusLevel.Neutral;
 
     public IoMonitorViewModel(
         IIoMonitorService monitorService,
@@ -107,6 +108,12 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
         private set => SetProperty(ref _statusMessage, value);
     }
 
+    public MotionStatusLevel StatusLevel
+    {
+        get => _statusLevel;
+        private set => SetProperty(ref _statusLevel, value);
+    }
+
     public DelegateCommand DiPreviousPageCommand { get; }
     public DelegateCommand DiNextPageCommand { get; }
     public DelegateCommand<IoPageToken> DiSelectPageCommand { get; }
@@ -157,7 +164,7 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
         }
         catch (Exception exception)
         {
-            await RunOnUiAsync(() => StatusMessage = exception.Message);
+            await RunOnUiAsync(() => SetStatus(exception.Message, MotionStatusLevel.Error));
         }
     }
 
@@ -194,10 +201,16 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
         RunOnUi(() => ApplySnapshot(snapshot));
 
     private void OnMonitorError(object? sender, IoMonitorError error) =>
-        RunOnUi(() => StatusMessage = error.Message);
+        RunOnUi(() => SetStatus(error.Message, MotionStatusLevel.Error));
 
     private void OnConnectionChanged(object? sender, bool connected) =>
-        RunOnUi(UpdateCanOperate);
+        RunOnUi(() =>
+        {
+            UpdateCanOperate();
+            SetStatus(
+                connected ? "控制卡已连接，等待 IO 数据" : "控制卡未连接",
+                connected ? MotionStatusLevel.Warning : MotionStatusLevel.Neutral);
+        });
 
     private void ApplySnapshot(IoSnapshot snapshot)
     {
@@ -209,7 +222,11 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
             AllDoPoints,
             snapshot.DigitalOutputs,
             IoPointType.DO);
-        StatusMessage = _cardService.IsConnected ? "IO 状态已更新" : "控制卡未连接";
+        SetStatus(
+            _cardService.IsConnected ? "IO 状态已更新" : "控制卡未连接",
+            _cardService.IsConnected
+                ? MotionStatusLevel.Success
+                : MotionStatusLevel.Neutral);
         if (diStructureChanged || doStructureChanged)
         {
             RefreshPaging();
@@ -320,14 +337,16 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
             await _displayNameRepository.SaveAsync(names, cancellationToken)
                 .ConfigureAwait(false);
             _displayNames = names;
-            await RunOnUiAsync(() => StatusMessage = $"已保存 {point.Address} 的显示名称");
+            await RunOnUiAsync(() => SetStatus(
+                $"已保存 {point.Address} 的显示名称",
+                MotionStatusLevel.Info));
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             await RunOnUiAsync(() =>
             {
                 point.RestoreDisplayName(previousName);
-                StatusMessage = exception.Message;
+                SetStatus(exception.Message, MotionStatusLevel.Error);
             });
         }
         finally
@@ -367,7 +386,7 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
             await RunOnUiAsync(() =>
             {
                 point.IsOn = actualState;
-                StatusMessage = exception.Message;
+                SetStatus(exception.Message, MotionStatusLevel.Error);
             });
         }
         finally
@@ -390,6 +409,12 @@ public sealed class IoMonitorViewModel : BindableBase, INavigationAware
                 point => point.Address,
                 point => point.DisplayName,
                 StringComparer.Ordinal);
+
+    private void SetStatus(string message, MotionStatusLevel level)
+    {
+        StatusLevel = level;
+        StatusMessage = message;
+    }
 
     private void UpdateCanOperate()
     {

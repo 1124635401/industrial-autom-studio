@@ -27,6 +27,14 @@ public partial class ShellWindow : Window
             return;
         }
 
+        // 点击标题栏上的交互控件（模块按钮、最小化/最大化/关闭、帮助等）时不发起拖拽，
+        // 否则点击这些按钮会被当成拖动窗口。
+        if (e.OriginalSource is DependencyObject source
+            && FindAncestor<Button>(source) is not null)
+        {
+            return;
+        }
+
         DragMove();
     }
 

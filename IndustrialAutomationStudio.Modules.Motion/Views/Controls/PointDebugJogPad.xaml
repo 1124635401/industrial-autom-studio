@@ -5,8 +5,8 @@
              Width="300" Height="218">
     <UserControl.Resources>
         <Style x:Key="PointDebugDirectionButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="48" />
-            <Setter Property="Height" Value="48" />
+            <Setter Property="Width" Value="56" />
+            <Setter Property="Height" Value="56" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="Background" Value="#FFFAFCFF" />
             <Setter Property="Foreground" Value="#FF26364D" />
@@ -77,7 +77,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Border Padding="10" Background="White"
+    <Border Padding="8" Background="White"
             BorderBrush="{StaticResource MotionBorderBrush}"
             BorderThickness="1" CornerRadius="12">
         <Border.Effect>
@@ -85,7 +85,7 @@
                               Opacity="0.05" Color="#FF000000" />
         </Border.Effect>
         <Grid>
-            <Grid Width="156" Height="156"
+            <Grid Width="210" Height="196"
                   HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />

@@ -5,30 +5,33 @@
              prism:ViewModelLocator.AutoWireViewModel="True"
              Background="Transparent"
              ToolTip="{Binding StatusMessage}">
+    <Border Background="White"
+            BorderBrush="{StaticResource MotionBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="14"
+            SnapsToDevicePixels="True">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Visibility="{DynamicResource MotionPageHeaderVisibility}">
+        <Border Grid.Row="0"
+                Padding="24,18"
+                Background="White"
+                BorderBrush="#FFF0F0F0"
+                BorderThickness="0,0,0,1"
+                CornerRadius="13,13,0,0">
+            <StackPanel>
                 <TextBlock Style="{StaticResource MotionPageTitleStyle}" Text="IO 监控" />
                 <TextBlock Margin="0,7,0,0" FontSize="13"
                            Foreground="{StaticResource MotionTextSecondaryBrush}"
                            Text="实时监控控制器的数字输入输出信号状态" />
             </StackPanel>
-            <TextBlock Grid.Column="1" MaxWidth="320" VerticalAlignment="Bottom"
-                       TextTrimming="CharacterEllipsis"
-                       Foreground="{StaticResource MotionTextSecondaryBrush}"
-                       Text="{Binding StatusMessage}" />
-        </Grid>
+        </Border>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="22" />
@@ -334,5 +337,27 @@
                 </Grid>
             </Border>
         </Grid>
+
+        <Border Grid.Row="2"
+                Margin="20,12,20,16"
+                Background="White"
+                BorderBrush="{StaticResource MotionBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="6">
+            <Grid Margin="14,9">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <Ellipse Width="7"
+                             Height="7"
+                             Style="{StaticResource MotionStatusDotStyle}" />
+                    <TextBlock MaxWidth="640"
+                               Margin="8,0,10,0"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource MotionTextSecondaryBrush}"
+                               Text="{Binding StatusMessage}"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
+    </Border>
 </UserControl>

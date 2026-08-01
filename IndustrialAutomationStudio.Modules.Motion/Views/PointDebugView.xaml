@@ -21,7 +21,7 @@
 
         <Style x:Key="PointDebugToolbarButtonStyle" TargetType="Button"
                BasedOn="{StaticResource MotionSecondaryButton}">
-            <Setter Property="Height" Value="32" />
+            <Setter Property="Height" Value="28" />
             <Setter Property="MinWidth" Value="46" />
             <Setter Property="Margin" Value="5,0,0,0" />
             <Setter Property="Padding" Value="10,0" />
@@ -148,7 +148,7 @@
                         CornerRadius="13,13,0,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Margin="0,0,10,0" VerticalAlignment="Center"
-                                   FontSize="13" FontWeight="SemiBold" Text="当前分组" />
+                                   FontSize="14" FontWeight="SemiBold" Text="当前分组" />
                         <ComboBox Width="230" Height="36" Padding="12,0"
                                   Style="{StaticResource MotionComboBoxStyle}"
                                   ItemsSource="{Binding Groups}"
@@ -168,8 +168,8 @@
 
                 <Border x:Name="PointDebugContentSurface"
                         Grid.Row="1"
-                        Padding="16"
-                        Background="#FFF7F9FC"
+                        Padding="20"
+                        Background="Transparent"
                         CornerRadius="0,0,13,13">
                     <Grid x:Name="PointDebugWorkspace">
             <Grid.ColumnDefinitions>
@@ -181,19 +181,19 @@
             <Border Grid.Column="0" Style="{StaticResource PointDebugInnerCardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="54" />
+                        <RowDefinition Height="44" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Border Padding="18,0" BorderBrush="#FFF0F0F0"
                             BorderThickness="0,0,0,1" CornerRadius="11,11,0,0">
-                        <TextBlock VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"
+                        <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"
                                    Foreground="{StaticResource MotionTextPrimaryBrush}" Text="运动控制" />
                     </Border>
 
                     <Border Grid.Row="1" Background="#FFFBFCFE" CornerRadius="0,0,11,11">
                         <ScrollViewer HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto">
-                            <Grid Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid Margin="12" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
@@ -205,22 +205,22 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
-                                <controls:AxisControlCard Grid.Row="0" Grid.Column="1" Margin="0,0,0,16"
+                                <controls:AxisControlCard Grid.Row="0" Grid.Column="1" Margin="0,0,0,24"
                                                           Style="{StaticResource PointDebugAxisCardHostStyle}"
                                                           DataContext="{Binding YAxisCard}" />
-                                <controls:AxisControlCard Grid.Row="1" Grid.Column="0" Margin="0,0,16,0"
+                                <controls:AxisControlCard Grid.Row="1" Grid.Column="0" Margin="0,0,24,0"
                                                           Style="{StaticResource PointDebugAxisCardHostStyle}"
                                                           DataContext="{Binding XAxisCard}" />
-                                <controls:PointDebugJogPad Grid.Row="1" Grid.Column="1"
-                                                           JogPad="{Binding JogPad}"
-                                                           IsInteractionEnabled="{Binding IsInteractionEnabled}"
-                                                           StartCommand="{Binding StartJogCommand}"
-                                                           StopCommand="{Binding StopJogCommand}"
-                                                           StopAllCommand="{Binding StopGroupCommand}" />
-                                <controls:AxisControlCard Grid.Row="1" Grid.Column="2" Margin="16,0,0,0"
+                <controls:PointDebugJogPad Grid.Row="1" Grid.Column="1"
+                                           JogPad="{Binding JogPad}"
+                                           IsInteractionEnabled="{Binding IsInteractionEnabled}"
+                                           StartCommand="{Binding StartJogCommand}"
+                                           StopCommand="{Binding StopJogCommand}"
+                                           StopAllCommand="{Binding StopGroupCommand}" />
+                                <controls:AxisControlCard Grid.Row="1" Grid.Column="2" Margin="24,0,0,0"
                                                           Style="{StaticResource PointDebugAxisCardHostStyle}"
                                                           DataContext="{Binding ZAxisCard}" />
-                                <controls:AxisControlCard Grid.Row="2" Grid.Column="1" Margin="0,16,0,0"
+                                <controls:AxisControlCard Grid.Row="2" Grid.Column="1" Margin="0,24,0,0"
                                                           Style="{StaticResource PointDebugAxisCardHostStyle}"
                                                           DataContext="{Binding RAxisCard}" />
                             </Grid>
@@ -232,7 +232,7 @@
             <Border Grid.Column="2" Style="{StaticResource PointDebugInnerCardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="54" />
+                        <RowDefinition Height="44" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="44" />
                     </Grid.RowDefinitions>
@@ -244,11 +244,11 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock VerticalAlignment="Center" FontSize="18" FontWeight="SemiBold"
+                            <TextBlock VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"
                                        Foreground="{StaticResource MotionTextPrimaryBrush}" Text="点位列表" />
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                 <Button Style="{StaticResource MotionPrimaryButton}"
-                                        Height="32" MinWidth="54" Margin="0" Padding="10,0"
+                                        Height="28" MinWidth="54" Margin="0" Padding="10,0"
                                         FontSize="11" Command="{Binding RecordCurrentPositionCommand}"
                                         Content="＋ 新增" />
                                 <Button Style="{StaticResource PointDebugToolbarButtonStyle}"
@@ -363,7 +363,7 @@
                             CornerRadius="0,0,11,11">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Ellipse Width="7" Height="7" Margin="0,0,7,0"
-                                     Fill="{StaticResource MotionBrush.Success}" />
+                                     Style="{StaticResource MotionStatusDotStyle}" />
                             <TextBlock VerticalAlignment="Center" FontSize="10"
                                        Foreground="{StaticResource MotionTextSecondaryBrush}"
                                        Text="{Binding StatusMessage}" TextTrimming="CharacterEllipsis" />

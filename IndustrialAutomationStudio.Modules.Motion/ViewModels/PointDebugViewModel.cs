@@ -35,6 +35,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
     private DateTimeOffset _axisMoveStarted;
     private double _jogSpeed = 10;
     private string _statusMessage = "准备就绪";
+    private MotionStatusLevel _statusLevel = MotionStatusLevel.Neutral;
     private bool _isBusy;
     private bool _isMotionActive;
     private bool _pointMotionPending;
@@ -182,6 +183,12 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         private set => SetProperty(ref _statusMessage, value);
     }
 
+    public MotionStatusLevel StatusLevel
+    {
+        get => _statusLevel;
+        private set => SetProperty(ref _statusLevel, value);
+    }
+
     public bool IsBusy
     {
         get => _isBusy;
@@ -222,7 +229,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         }
 
         IsBusy = true;
-        StatusMessage = "正在加载点位与轴分组...";
+        SetStatus("正在加载点位与轴分组...", MotionStatusLevel.Warning);
         try
         {
             var axesTask = _axisConfigService.LoadAsync(cancellationToken);
@@ -247,17 +254,23 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             if (SelectedGroup is null)
             {
                 ClearSelectedGroup();
-                StatusMessage = "没有可用分组，请先创建轴分组。";
+                SetStatus("没有可用分组，请先创建轴分组。", MotionStatusLevel.Neutral);
             }
             else
             {
-                StatusMessage = $"已加载 {Points.Count} 个点位。";
+                SetStatus(
+                    $"已加载 {Points.Count} 个点位。",
+                    _motionExecution.IsMotionAvailable
+                        ? MotionStatusLevel.Success
+                        : MotionStatusLevel.Neutral);
             }
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
             ClearSelectedGroup();
-            StatusMessage = $"加载点位调试页面失败：{exception.Message}";
+            SetStatus(
+                $"加载点位调试页面失败：{exception.Message}",
+                MotionStatusLevel.Error);
         }
         finally
         {
@@ -347,7 +360,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                     _activePoint = null;
                     _activeTargets = new Dictionary<AxisAddress, double>();
                     IsMotionActive = false;
-                    StatusMessage = "点位定位完成。";
+                    SetStatus("点位定位完成。", MotionStatusLevel.Success);
                     return;
                 }
 
@@ -375,7 +388,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             }
             else
             {
-                StatusMessage = $"读取实时位置失败：{exception.Message}";
+                SetStatus(
+                    $"读取实时位置失败：{exception.Message}",
+                    MotionStatusLevel.Error);
             }
         }
     }
@@ -400,7 +415,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             {
                 case AxisMotionMode.Continuous:
                     _activeContinuousJog = true;
-                    StatusMessage = $"Jog：{direction.AxisName} {direction.Label}";
+                    SetStatus(
+                        $"Jog：{direction.AxisName} {direction.Label}",
+                        MotionStatusLevel.Warning);
                     await _motionExecution.StartJogAsync(
                         axis,
                         direction.Direction,
@@ -417,7 +434,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                         card.MotionSpeed,
                         cancellationToken);
                     BeginAxisMove(direction.Address, relativeTarget);
-                    StatusMessage = $"{direction.AxisName} 相对运动已下发。";
+                    SetStatus(
+                        $"{direction.AxisName} 相对运动已下发。",
+                        MotionStatusLevel.Warning);
                     break;
 
                 case AxisMotionMode.Absolute:
@@ -429,7 +448,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                         card.MotionSpeed,
                         cancellationToken);
                     BeginAxisMove(direction.Address, absoluteTarget);
-                    StatusMessage = $"{direction.AxisName} 绝对运动已下发。";
+                    SetStatus(
+                        $"{direction.AxisName} 绝对运动已下发。",
+                        MotionStatusLevel.Warning);
                     break;
 
                 default:
@@ -447,7 +468,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 IsMotionActive = false;
             }
 
-            StatusMessage = $"运动启动失败：{exception.Message}";
+            SetStatus($"运动启动失败：{exception.Message}", MotionStatusLevel.Error);
         }
     }
 
@@ -470,11 +491,11 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 MotionStopMode.Smooth,
                 cancellationToken);
             stopped = true;
-            StatusMessage = $"{direction.AxisName} 已停止。";
+            SetStatus($"{direction.AxisName} 已停止。", MotionStatusLevel.Info);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusMessage = $"停止失败：{exception.Message}";
+            SetStatus($"停止失败：{exception.Message}", MotionStatusLevel.Error);
         }
         if (stopped)
         {
@@ -491,7 +512,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         var configs = SelectedAxisConfigs();
         if (configs.Count == 0)
         {
-            StatusMessage = "当前分组没有可读取的轴。";
+            SetStatus("当前分组没有可读取的轴。", MotionStatusLevel.Neutral);
             return;
         }
 
@@ -515,7 +536,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusMessage = $"记录当前位置失败：{exception.Message}";
+            SetStatus(
+                $"记录当前位置失败：{exception.Message}",
+                MotionStatusLevel.Error);
         }
     }
 
@@ -540,7 +563,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         Points.Add(row);
         SelectedPoint = row;
         RaisePropertyChanged(nameof(HasPoints));
-        StatusMessage = "已记录当前位置，请修改名称和速度后保存。";
+        SetStatus(
+            "已记录当前位置，请修改名称和速度后保存。",
+            MotionStatusLevel.Info);
         return row;
     }
 
@@ -558,7 +583,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         var error = ValidatePoint(row);
         if (error is not null)
         {
-            StatusMessage = error;
+            SetStatus(error, MotionStatusLevel.Warning);
             return;
         }
 
@@ -568,7 +593,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             var currentError = ValidatePoint(row);
             if (currentError is not null)
             {
-                StatusMessage = currentError;
+                SetStatus(currentError, MotionStatusLevel.Warning);
                 return;
             }
 
@@ -590,11 +615,11 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             row.CommitEdit();
             SelectedPoint = row;
             RaiseCommandStates();
-            StatusMessage = $"点位“{row.Name}”已保存。";
+            SetStatus($"点位“{row.Name}”已保存。", MotionStatusLevel.Info);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusMessage = $"保存点位失败：{exception.Message}";
+            SetStatus($"保存点位失败：{exception.Message}", MotionStatusLevel.Error);
         }
         finally
         {
@@ -645,11 +670,11 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 SelectedPoint = Points.FirstOrDefault();
             }
             RaisePropertyChanged(nameof(HasPoints));
-            StatusMessage = $"点位“{row.Name}”已删除。";
+            SetStatus($"点位“{row.Name}”已删除。", MotionStatusLevel.Info);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusMessage = $"删除点位失败：{exception.Message}";
+            SetStatus($"删除点位失败：{exception.Message}", MotionStatusLevel.Error);
         }
         finally
         {
@@ -670,7 +695,9 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
         row.UpdateCompatibility(group);
         if (!row.IsCompatible)
         {
-            StatusMessage = $"点位“{row.Name}”分组已变更，无法定位。";
+            SetStatus(
+                $"点位“{row.Name}”分组已变更，无法定位。",
+                MotionStatusLevel.Warning);
             return;
         }
 
@@ -691,13 +718,15 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 SelectedAxisConfigs().ToDictionary(axis => axis.Address),
                 model,
                 cancellationToken);
-            StatusMessage = $"已下发点位“{row.Name}”定位指令。";
+            SetStatus(
+                $"已下发点位“{row.Name}”定位指令。",
+                MotionStatusLevel.Warning);
         }
         catch (MotionFailStopException exception)
         {
             _pointMotionPending = false;
             row.MarkFailed(exception.Message);
-            StatusMessage = exception.Message;
+            SetStatus(exception.Message, MotionStatusLevel.Error);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
@@ -706,7 +735,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             row.MarkFailed(exception.Message);
             _activePoint = null;
             _activeTargets = new Dictionary<AxisAddress, double>();
-            StatusMessage = $"定位失败：{exception.Message}";
+            SetStatus($"定位失败：{exception.Message}", MotionStatusLevel.Error);
         }
     }
 
@@ -728,11 +757,11 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 MotionStopMode.Smooth,
                 cancellationToken);
             stopped = true;
-            StatusMessage = "当前分组已停止。";
+            SetStatus("当前分组已停止。", MotionStatusLevel.Info);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusMessage = $"停止失败：{exception.Message}";
+            SetStatus($"停止失败：{exception.Message}", MotionStatusLevel.Error);
         }
         if (stopped)
         {
@@ -1002,11 +1031,15 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
                 axis,
                 enabled,
                 cancellationToken);
-            StatusMessage = $"轴 {axis.AxisName} 已{(enabled ? "使能" : "去使能")}。";
+            SetStatus(
+                $"轴 {axis.AxisName} 已{(enabled ? "使能" : "去使能")}。",
+                MotionStatusLevel.Info);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            StatusMessage = $"轴 {axis.AxisName} {(enabled ? "使能" : "去使能")}失败：{exception.Message}";
+            SetStatus(
+                $"轴 {axis.AxisName} {(enabled ? "使能" : "去使能")}失败：{exception.Message}",
+                MotionStatusLevel.Error);
             throw;
         }
     }
@@ -1031,7 +1064,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
         _activeContinuousJog = false;
         IsMotionActive = false;
-        StatusMessage = message;
+        SetStatus(message, MotionStatusLevel.Success);
     }
 
     private void RaiseCollectionStates()
@@ -1062,7 +1095,7 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
             .ToArray() ?? [];
         if (addresses.Length == 0)
         {
-            StatusMessage = reason;
+            SetStatus(reason, MotionStatusLevel.Error);
             return;
         }
 
@@ -1085,12 +1118,22 @@ public sealed class PointDebugViewModel : BindableBase, INavigationAware
 
             _activeContinuousJog = false;
             IsMotionActive = false;
-            StatusMessage = $"{reason}，已紧急停止当前分组。";
+            SetStatus(
+                $"{reason}，已紧急停止当前分组。",
+                MotionStatusLevel.Error);
         }
         catch (Exception stopException) when (stopException is not OperationCanceledException)
         {
-            StatusMessage = $"{reason}，且停止失败：{stopException.Message}";
+            SetStatus(
+                $"{reason}，且停止失败：{stopException.Message}",
+                MotionStatusLevel.Error);
         }
+    }
+
+    private void SetStatus(string message, MotionStatusLevel level)
+    {
+        StatusLevel = level;
+        StatusMessage = message;
     }
 
     private bool IsUnsafeState(AxisState state)
